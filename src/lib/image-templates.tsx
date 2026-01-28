@@ -17,7 +17,7 @@ export interface TemplateProps {
 const Stars = ({ color = '#FFD700', size = 20 }: { color?: string; size?: number }) => (
   <div style={{ display: 'flex', gap: 4 }}>
     {[0, 1, 2, 3, 4].map((i) => (
-      <span key={i} style={{ color, fontSize: size }}>★</span>
+      <span key={i} style={{ color, fontSize: size, display: 'flex' }}>★</span>
     ))}
   </div>
 );
@@ -113,11 +113,12 @@ export const Template000 = (props: TemplateProps) => {
             fontSize: width * 0.022,
             fontWeight: 700,
             letterSpacing: '0.15em',
+            display: 'flex',
           }}
         >
           RECOMMEND
         </div>
-        <div style={{ flex: 1, height: 2, backgroundColor: '#D4A853', marginLeft: 16 }} />
+        <div style={{ flex: 1, height: 2, backgroundColor: '#D4A853', marginLeft: 16, display: 'flex' }} />
       </div>
 
       {/* キャッチコピー */}
@@ -128,6 +129,7 @@ export const Template000 = (props: TemplateProps) => {
           fontWeight: 900,
           lineHeight: 1.3,
           marginBottom: height * 0.04,
+          display: 'flex',
         }}
       >
         {catchCopy}
@@ -152,7 +154,7 @@ export const Template000 = (props: TemplateProps) => {
             borderWidth={4}
           />
           {ownerName && (
-            <div style={{ color: '#D4A853', fontSize: width * 0.025, marginTop: 12, fontWeight: 600 }}>
+            <div style={{ color: '#D4A853', fontSize: width * 0.025, marginTop: 12, fontWeight: 600, display: 'flex' }}>
               {ownerName}
             </div>
           )}
@@ -167,7 +169,7 @@ export const Template000 = (props: TemplateProps) => {
             flexDirection: 'column',
           }}
         >
-          <div style={{ color: '#D4A853', fontSize: width * 0.1, lineHeight: 0.8, marginBottom: 8 }}>
+          <div style={{ color: '#D4A853', fontSize: width * 0.1, lineHeight: 0.8, marginBottom: 8, display: 'flex' }}>
             &ldquo;
           </div>
           <div
@@ -176,11 +178,12 @@ export const Template000 = (props: TemplateProps) => {
               fontSize: width * 0.028,
               lineHeight: 1.9,
               flex: 1,
+              display: 'flex',
             }}
           >
             {reviewText}
           </div>
-          <div style={{ color: '#D4A853', fontSize: width * 0.1, lineHeight: 0.8, textAlign: 'right' }}>
+          <div style={{ color: '#D4A853', fontSize: width * 0.1, lineHeight: 0.8, textAlign: 'right', display: 'flex', justifyContent: 'flex-end' }}>
             &rdquo;
           </div>
         </div>
@@ -201,7 +204,7 @@ export const Template000 = (props: TemplateProps) => {
           {logoUrl && (
             <img src={logoUrl} alt="logo" style={{ height: height * 0.06, marginRight: 16 }} />
           )}
-          <div style={{ color: '#D4A853', fontSize: width * 0.035, fontWeight: 700 }}>
+          <div style={{ color: '#D4A853', fontSize: width * 0.035, fontWeight: 700, display: 'flex' }}>
             {serviceName}
           </div>
         </div>
@@ -227,7 +230,7 @@ export const Template001 = (props: TemplateProps) => {
       }}
     >
       {/* 上部アクセントバー */}
-      <div style={{ height: 10, backgroundColor: '#FFD700' }} />
+      <div style={{ height: 10, backgroundColor: '#FFD700', display: 'flex' }} />
 
       {/* ヘッダー */}
       <div
@@ -243,11 +246,11 @@ export const Template001 = (props: TemplateProps) => {
           {logoUrl && (
             <img src={logoUrl} alt="logo" style={{ height: height * 0.05, marginRight: 16 }} />
           )}
-          <div>
-            <div style={{ color: '#1A1A1A', fontSize: width * 0.04, fontWeight: 900 }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ color: '#1A1A1A', fontSize: width * 0.04, fontWeight: 900, display: 'flex' }}>
               {serviceName}
             </div>
-            <div style={{ color: '#666', fontSize: width * 0.018 }}>{description}</div>
+            <div style={{ color: '#666', fontSize: width * 0.018, display: 'flex' }}>{description}</div>
           </div>
         </div>
         <Stars color="#FFD700" size={width * 0.03} />
@@ -272,7 +275,7 @@ export const Template001 = (props: TemplateProps) => {
             borderWidth={5}
           />
           {ownerName && (
-            <div style={{ color: '#1A1A1A', fontSize: width * 0.024, marginTop: 12, fontWeight: 700 }}>
+            <div style={{ color: '#1A1A1A', fontSize: width * 0.024, marginTop: 12, fontWeight: 700, display: 'flex' }}>
               {ownerName} 様
             </div>
           )}
@@ -290,7 +293,7 @@ export const Template001 = (props: TemplateProps) => {
             flexDirection: 'column',
           }}
         >
-          <div style={{ color: '#B45309', fontSize: width * 0.032, fontWeight: 800, marginBottom: 16 }}>
+          <div style={{ color: '#B45309', fontSize: width * 0.032, fontWeight: 800, marginBottom: 16, display: 'flex' }}>
             {catchCopy}
           </div>
           <div
@@ -299,6 +302,7 @@ export const Template001 = (props: TemplateProps) => {
               fontSize: width * 0.026,
               lineHeight: 1.8,
               flex: 1,
+              display: 'flex',
             }}
           >
             {reviewText}
@@ -307,7 +311,7 @@ export const Template001 = (props: TemplateProps) => {
       </div>
 
       {/* 下部アクセントバー */}
-      <div style={{ height: 6, backgroundColor: '#FFD700' }} />
+      <div style={{ height: 6, backgroundColor: '#FFD700', display: 'flex' }} />
     </div>
   );
 };
@@ -338,14 +342,14 @@ export const Template002 = (props: TemplateProps) => {
           justifyContent: 'space-between',
         }}
       >
-        <div style={{ color: '#FFFFFF', fontSize: width * 0.02, letterSpacing: '0.2em', fontWeight: 600 }}>
+        <div style={{ color: '#FFFFFF', fontSize: width * 0.02, letterSpacing: '0.2em', fontWeight: 600, display: 'flex' }}>
           CUSTOMER VOICE
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {logoUrl && (
             <img src={logoUrl} alt="logo" style={{ height: height * 0.04, marginRight: 12 }} />
           )}
-          <div style={{ color: '#FFFFFF', fontSize: width * 0.025, fontWeight: 700 }}>
+          <div style={{ color: '#FFFFFF', fontSize: width * 0.025, fontWeight: 700, display: 'flex' }}>
             {serviceName}
           </div>
         </div>
@@ -356,6 +360,7 @@ export const Template002 = (props: TemplateProps) => {
         style={{
           padding: `${height * 0.04}px ${width * 0.05}px`,
           backgroundColor: '#111',
+          display: 'flex',
         }}
       >
         <div
@@ -364,6 +369,7 @@ export const Template002 = (props: TemplateProps) => {
             fontSize: width * 0.06,
             fontWeight: 900,
             lineHeight: 1.3,
+            display: 'flex',
           }}
         >
           {catchCopy}
@@ -389,7 +395,7 @@ export const Template002 = (props: TemplateProps) => {
             borderWidth={4}
           />
           {ownerName && (
-            <div style={{ color: '#1A1A1A', fontSize: width * 0.022, marginTop: 10, fontWeight: 600 }}>
+            <div style={{ color: '#1A1A1A', fontSize: width * 0.022, marginTop: 10, fontWeight: 600, display: 'flex' }}>
               {ownerName}
             </div>
           )}
@@ -403,6 +409,7 @@ export const Template002 = (props: TemplateProps) => {
             backgroundColor: '#FEF9C3',
             borderRadius: 12,
             padding: width * 0.04,
+            display: 'flex',
           }}
         >
           <div
@@ -410,6 +417,7 @@ export const Template002 = (props: TemplateProps) => {
               color: '#1A1A1A',
               fontSize: width * 0.026,
               lineHeight: 1.8,
+              display: 'flex',
             }}
           >
             {reviewText}
@@ -448,11 +456,11 @@ export const Template003 = (props: TemplateProps) => {
         {logoUrl && (
           <img src={logoUrl} alt="logo" style={{ height: height * 0.05, marginRight: 16 }} />
         )}
-        <div>
-          <div style={{ color: '#4A3728', fontSize: width * 0.035, fontWeight: 700 }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ color: '#4A3728', fontSize: width * 0.035, fontWeight: 700, display: 'flex' }}>
             {serviceName}
           </div>
-          <div style={{ color: '#A7C4A0', fontSize: width * 0.018 }}>{description}</div>
+          <div style={{ color: '#A7C4A0', fontSize: width * 0.018, display: 'flex' }}>{description}</div>
         </div>
       </div>
 
@@ -488,7 +496,7 @@ export const Template003 = (props: TemplateProps) => {
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
           <Stars color="#E8927C" size={width * 0.028} />
         </div>
-        <div style={{ color: '#E8927C', fontSize: width * 0.032, fontWeight: 700, marginBottom: 16 }}>
+        <div style={{ color: '#E8927C', fontSize: width * 0.032, fontWeight: 700, marginBottom: 16, display: 'flex' }}>
           {catchCopy}
         </div>
         <div
@@ -497,12 +505,13 @@ export const Template003 = (props: TemplateProps) => {
             fontSize: width * 0.026,
             lineHeight: 1.9,
             flex: 1,
+            display: 'flex',
           }}
         >
           {reviewText}
         </div>
         {ownerName && (
-          <div style={{ color: '#A7C4A0', fontSize: width * 0.022, textAlign: 'right', marginTop: 16, fontWeight: 600 }}>
+          <div style={{ color: '#A7C4A0', fontSize: width * 0.022, textAlign: 'right', marginTop: 16, fontWeight: 600, display: 'flex', justifyContent: 'flex-end' }}>
             — {ownerName} 様
           </div>
         )}
@@ -530,10 +539,10 @@ export const Template004 = (props: TemplateProps) => {
       }}
     >
       {/* 見出し */}
-      <div style={{ color: '#C4956A', fontSize: width * 0.025, letterSpacing: '0.3em', marginBottom: 20 }}>
+      <div style={{ color: '#C4956A', fontSize: width * 0.025, letterSpacing: '0.3em', marginBottom: 20, display: 'flex' }}>
         VOICE
       </div>
-      <div style={{ width: width * 0.5, height: 1, backgroundColor: '#2C2C2C', marginBottom: height * 0.04 }} />
+      <div style={{ width: width * 0.5, height: 1, backgroundColor: '#2C2C2C', marginBottom: height * 0.04, display: 'flex' }} />
 
       {/* 顔写真 */}
       <FacePhoto
@@ -544,16 +553,16 @@ export const Template004 = (props: TemplateProps) => {
         borderWidth={2}
       />
       {ownerName && (
-        <div style={{ color: '#2C2C2C', fontSize: width * 0.022, marginTop: 12 }}>
+        <div style={{ color: '#2C2C2C', fontSize: width * 0.022, marginTop: 12, display: 'flex' }}>
           {ownerName}
         </div>
       )}
 
       {/* 区切り線 */}
-      <div style={{ width: width * 0.7, height: 1, backgroundColor: '#2C2C2C', margin: `${height * 0.04}px 0` }} />
+      <div style={{ width: width * 0.7, height: 1, backgroundColor: '#2C2C2C', margin: `${height * 0.04}px 0`, display: 'flex' }} />
 
       {/* キャッチコピー */}
-      <div style={{ color: '#C4956A', fontSize: width * 0.035, fontWeight: 700, marginBottom: 20, textAlign: 'center' }}>
+      <div style={{ color: '#C4956A', fontSize: width * 0.035, fontWeight: 700, marginBottom: 20, textAlign: 'center', display: 'flex' }}>
         {catchCopy}
       </div>
 
@@ -573,7 +582,7 @@ export const Template004 = (props: TemplateProps) => {
       </div>
 
       {/* 区切り線 */}
-      <div style={{ width: width * 0.7, height: 1, backgroundColor: '#2C2C2C', margin: `${height * 0.03}px 0` }} />
+      <div style={{ width: width * 0.7, height: 1, backgroundColor: '#2C2C2C', margin: `${height * 0.03}px 0`, display: 'flex' }} />
 
       {/* 星評価 */}
       <Stars color="#C4956A" size={width * 0.025} />
@@ -583,7 +592,7 @@ export const Template004 = (props: TemplateProps) => {
         {logoUrl && (
           <img src={logoUrl} alt="logo" style={{ height: height * 0.04, marginRight: 12 }} />
         )}
-        <div style={{ color: '#8C8C8C', fontSize: width * 0.022 }}>{serviceName}</div>
+        <div style={{ color: '#8C8C8C', fontSize: width * 0.022, display: 'flex' }}>{serviceName}</div>
       </div>
     </div>
   );
@@ -615,7 +624,7 @@ export const Template005 = (props: TemplateProps) => {
           justifyContent: 'space-between',
         }}
       >
-        <div style={{ color: '#FFFFFF', fontSize: width * 0.028, fontWeight: 700 }}>お客様の声</div>
+        <div style={{ color: '#FFFFFF', fontSize: width * 0.028, fontWeight: 700, display: 'flex' }}>お客様の声</div>
         <Stars color="#FFFFFF" size={width * 0.028} />
       </div>
 
@@ -640,11 +649,11 @@ export const Template005 = (props: TemplateProps) => {
             borderWidth={4}
           />
           {ownerName && (
-            <div style={{ color: '#1E293B', fontSize: width * 0.024, marginTop: 12, fontWeight: 600 }}>
+            <div style={{ color: '#1E293B', fontSize: width * 0.024, marginTop: 12, fontWeight: 600, display: 'flex' }}>
               {ownerName} 様
             </div>
           )}
-          <div style={{ color: '#64748B', fontSize: width * 0.018, marginTop: 8 }}>
+          <div style={{ color: '#64748B', fontSize: width * 0.018, marginTop: 8, display: 'flex' }}>
             ご利用者様
           </div>
         </div>
@@ -658,10 +667,10 @@ export const Template005 = (props: TemplateProps) => {
             flexDirection: 'column',
           }}
         >
-          <div style={{ color: '#2563EB', fontSize: width * 0.02, fontWeight: 700, marginBottom: 8 }}>
+          <div style={{ color: '#2563EB', fontSize: width * 0.02, fontWeight: 700, marginBottom: 8, display: 'flex' }}>
             ▼ ご利用後の感想
           </div>
-          <div style={{ color: '#2563EB', fontSize: width * 0.035, fontWeight: 800, marginBottom: 16 }}>
+          <div style={{ color: '#2563EB', fontSize: width * 0.035, fontWeight: 800, marginBottom: 16, display: 'flex' }}>
             {catchCopy}
           </div>
           <div
@@ -670,6 +679,7 @@ export const Template005 = (props: TemplateProps) => {
               fontSize: width * 0.025,
               lineHeight: 1.8,
               flex: 1,
+              display: 'flex',
             }}
           >
             {reviewText}
@@ -689,9 +699,9 @@ export const Template005 = (props: TemplateProps) => {
         {logoUrl && (
           <img src={logoUrl} alt="logo" style={{ height: height * 0.05, marginRight: 16 }} />
         )}
-        <div>
-          <div style={{ color: '#1E293B', fontSize: width * 0.028, fontWeight: 700 }}>{serviceName}</div>
-          <div style={{ color: '#64748B', fontSize: width * 0.018 }}>{description}</div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ color: '#1E293B', fontSize: width * 0.028, fontWeight: 700, display: 'flex' }}>{serviceName}</div>
+          <div style={{ color: '#64748B', fontSize: width * 0.018, display: 'flex' }}>{description}</div>
         </div>
       </div>
     </div>
@@ -723,9 +733,10 @@ export const Template006 = (props: TemplateProps) => {
           borderRadius: 9999,
           padding: '12px 32px',
           marginBottom: height * 0.03,
+          display: 'flex',
         }}
       >
-        <div style={{ color: '#D4A853', fontSize: width * 0.022, fontWeight: 700, letterSpacing: '0.15em' }}>
+        <div style={{ color: '#D4A853', fontSize: width * 0.022, fontWeight: 700, letterSpacing: '0.15em', display: 'flex' }}>
           ★ TRUSTED REVIEW ★
         </div>
       </div>
@@ -739,18 +750,18 @@ export const Template006 = (props: TemplateProps) => {
         borderWidth={4}
       />
       {ownerName && (
-        <div style={{ color: '#FFFFFF', fontSize: width * 0.024, marginTop: 12 }}>{ownerName}</div>
+        <div style={{ color: '#FFFFFF', fontSize: width * 0.024, marginTop: 12, display: 'flex' }}>{ownerName}</div>
       )}
 
       {/* 装飾ライン */}
       <div style={{ display: 'flex', alignItems: 'center', margin: `${height * 0.025}px 0` }}>
-        <div style={{ width: 50, height: 2, backgroundColor: '#D4A853' }} />
-        <div style={{ width: 10, height: 10, backgroundColor: '#D4A853', marginLeft: 10, marginRight: 10 }} />
-        <div style={{ width: 50, height: 2, backgroundColor: '#D4A853' }} />
+        <div style={{ width: 50, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
+        <div style={{ width: 10, height: 10, backgroundColor: '#D4A853', marginLeft: 10, marginRight: 10, display: 'flex' }} />
+        <div style={{ width: 50, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
       </div>
 
       {/* キャッチコピー */}
-      <div style={{ color: '#D4A853', fontSize: width * 0.035, fontWeight: 700, marginBottom: 16, textAlign: 'center' }}>
+      <div style={{ color: '#D4A853', fontSize: width * 0.035, fontWeight: 700, marginBottom: 16, textAlign: 'center', display: 'flex' }}>
         {catchCopy}
       </div>
 
@@ -762,6 +773,7 @@ export const Template006 = (props: TemplateProps) => {
           lineHeight: 1.8,
           textAlign: 'center',
           flex: 1,
+          display: 'flex',
         }}
       >
         {reviewText}
@@ -769,9 +781,9 @@ export const Template006 = (props: TemplateProps) => {
 
       {/* 装飾ライン */}
       <div style={{ display: 'flex', alignItems: 'center', margin: `${height * 0.025}px 0` }}>
-        <div style={{ width: 50, height: 2, backgroundColor: '#D4A853' }} />
-        <div style={{ width: 10, height: 10, backgroundColor: '#D4A853', marginLeft: 10, marginRight: 10 }} />
-        <div style={{ width: 50, height: 2, backgroundColor: '#D4A853' }} />
+        <div style={{ width: 50, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
+        <div style={{ width: 10, height: 10, backgroundColor: '#D4A853', marginLeft: 10, marginRight: 10, display: 'flex' }} />
+        <div style={{ width: 50, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
       </div>
 
       {/* 星評価 */}
@@ -782,9 +794,9 @@ export const Template006 = (props: TemplateProps) => {
         {logoUrl && (
           <img src={logoUrl} alt="logo" style={{ height: height * 0.045, marginRight: 16 }} />
         )}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ color: '#D4A853', fontSize: width * 0.028, fontWeight: 700 }}>{serviceName}</div>
-          <div style={{ color: '#9CA3AF', fontSize: width * 0.016 }}>{description}</div>
+        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ color: '#D4A853', fontSize: width * 0.028, fontWeight: 700, display: 'flex' }}>{serviceName}</div>
+          <div style={{ color: '#9CA3AF', fontSize: width * 0.016, display: 'flex' }}>{description}</div>
         </div>
       </div>
     </div>
@@ -812,9 +824,10 @@ export const Template007 = (props: TemplateProps) => {
         style={{
           backgroundColor: '#DC2626',
           padding: `${height * 0.02}px ${width * 0.05}px`,
+          display: 'flex',
         }}
       >
-        <div style={{ color: '#FFFFFF', fontSize: width * 0.018, letterSpacing: '0.2em', fontWeight: 600 }}>
+        <div style={{ color: '#FFFFFF', fontSize: width * 0.018, letterSpacing: '0.2em', fontWeight: 600, display: 'flex' }}>
           CUSTOMER INTERVIEW
         </div>
       </div>
@@ -841,11 +854,11 @@ export const Template007 = (props: TemplateProps) => {
             rounded={false}
           />
           {ownerName && (
-            <div style={{ color: '#1A1A1A', fontSize: width * 0.028, fontWeight: 700, marginTop: 16 }}>
+            <div style={{ color: '#1A1A1A', fontSize: width * 0.028, fontWeight: 700, marginTop: 16, display: 'flex' }}>
               {ownerName}
             </div>
           )}
-          <div style={{ color: '#DC2626', fontSize: width * 0.022, marginTop: 8, fontWeight: 600 }}>
+          <div style={{ color: '#DC2626', fontSize: width * 0.022, marginTop: 8, fontWeight: 600, display: 'flex' }}>
             {serviceName}
           </div>
           {logoUrl && (
@@ -863,17 +876,17 @@ export const Template007 = (props: TemplateProps) => {
           }}
         >
           {/* 装飾引用符 */}
-          <div style={{ color: '#DC2626', fontSize: width * 0.1, lineHeight: 0.7, marginBottom: 8 }}>
+          <div style={{ color: '#DC2626', fontSize: width * 0.1, lineHeight: 0.7, marginBottom: 8, display: 'flex' }}>
             &ldquo;
           </div>
 
           {/* 質問 */}
-          <div style={{ color: '#6B7280', fontSize: width * 0.018, marginBottom: 12 }}>
+          <div style={{ color: '#6B7280', fontSize: width * 0.018, marginBottom: 12, display: 'flex' }}>
             Q. サービスを受けていかがでしたか？
           </div>
 
           {/* キャッチコピー */}
-          <div style={{ color: '#1A1A1A', fontSize: width * 0.032, fontWeight: 800, marginBottom: 20 }}>
+          <div style={{ color: '#1A1A1A', fontSize: width * 0.032, fontWeight: 800, marginBottom: 20, display: 'flex' }}>
             {catchCopy}
           </div>
 
@@ -884,18 +897,19 @@ export const Template007 = (props: TemplateProps) => {
               fontSize: width * 0.024,
               lineHeight: 2.0,
               flex: 1,
+              display: 'flex',
             }}
           >
             {reviewText}
           </div>
 
           {/* 星評価 */}
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 16, display: 'flex' }}>
             <Stars color="#DC2626" size={width * 0.028} />
           </div>
 
           {/* 概要 */}
-          <div style={{ color: '#6B7280', fontSize: width * 0.016, marginTop: 16 }}>{description}</div>
+          <div style={{ color: '#6B7280', fontSize: width * 0.016, marginTop: 16, display: 'flex' }}>{description}</div>
         </div>
       </div>
     </div>
@@ -924,7 +938,7 @@ export const Template008 = (props: TemplateProps) => {
         {logoUrl && (
           <img src={logoUrl} alt="logo" style={{ height: height * 0.045, marginRight: 12 }} />
         )}
-        <div style={{ color: '#EC4899', fontSize: width * 0.028, fontWeight: 700 }}>
+        <div style={{ color: '#EC4899', fontSize: width * 0.028, fontWeight: 700, display: 'flex' }}>
           {serviceName}
         </div>
       </div>
@@ -946,7 +960,7 @@ export const Template008 = (props: TemplateProps) => {
         />
       </div>
       {ownerName && (
-        <div style={{ color: '#EC4899', fontSize: width * 0.026, fontWeight: 700, textAlign: 'center', marginBottom: height * 0.02 }}>
+        <div style={{ color: '#EC4899', fontSize: width * 0.026, fontWeight: 700, textAlign: 'center', marginBottom: height * 0.02, display: 'flex', justifyContent: 'center' }}>
           {ownerName} さん
         </div>
       )}
@@ -964,7 +978,7 @@ export const Template008 = (props: TemplateProps) => {
         }}
       >
         <Stars color="#EC4899" size={width * 0.028} />
-        <div style={{ color: '#EC4899', fontSize: width * 0.034, fontWeight: 800, margin: '16px 0' }}>
+        <div style={{ color: '#EC4899', fontSize: width * 0.034, fontWeight: 800, margin: '16px 0', display: 'flex' }}>
           {catchCopy}
         </div>
         <div
@@ -973,6 +987,7 @@ export const Template008 = (props: TemplateProps) => {
             fontSize: width * 0.026,
             lineHeight: 1.8,
             flex: 1,
+            display: 'flex',
           }}
         >
           {reviewText}
@@ -981,10 +996,10 @@ export const Template008 = (props: TemplateProps) => {
 
       {/* ハッシュタグ */}
       <div style={{ display: 'flex', marginTop: height * 0.025 }}>
-        <span style={{ color: '#8B5CF6', fontSize: width * 0.022, fontWeight: 600, marginRight: 16 }}>
+        <span style={{ color: '#8B5CF6', fontSize: width * 0.022, fontWeight: 600, marginRight: 16, display: 'flex' }}>
           #おすすめ
         </span>
-        <span style={{ color: '#8B5CF6', fontSize: width * 0.022, fontWeight: 600 }}>
+        <span style={{ color: '#8B5CF6', fontSize: width * 0.022, fontWeight: 600, display: 'flex' }}>
           #リピート確定
         </span>
       </div>
@@ -1011,18 +1026,19 @@ export const Template009 = (props: TemplateProps) => {
     >
       {/* メイン数字 */}
       <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: height * 0.02 }}>
-        <span style={{ color: '#06B6D4', fontSize: width * 0.05, marginRight: 10 }}>★</span>
+        <span style={{ color: '#06B6D4', fontSize: width * 0.05, marginRight: 10, display: 'flex' }}>★</span>
         <span
           style={{
             color: '#06B6D4',
             fontSize: width * 0.14,
             fontWeight: 900,
+            display: 'flex',
           }}
         >
           4.9
         </span>
       </div>
-      <div style={{ color: '#FFFFFF', fontSize: width * 0.028, marginBottom: height * 0.035 }}>
+      <div style={{ color: '#FFFFFF', fontSize: width * 0.028, marginBottom: height * 0.035, display: 'flex' }}>
         お客様満足度
       </div>
 
@@ -1048,7 +1064,7 @@ export const Template009 = (props: TemplateProps) => {
             borderWidth={4}
           />
           {ownerName && (
-            <div style={{ color: '#FFFFFF', fontSize: width * 0.022, marginTop: 10 }}>{ownerName}</div>
+            <div style={{ color: '#FFFFFF', fontSize: width * 0.022, marginTop: 10, display: 'flex' }}>{ownerName}</div>
           )}
         </div>
 
@@ -1064,7 +1080,7 @@ export const Template009 = (props: TemplateProps) => {
           }}
         >
           <Stars color="#06B6D4" size={width * 0.025} />
-          <div style={{ color: '#06B6D4', fontSize: width * 0.03, fontWeight: 700, margin: '12px 0' }}>
+          <div style={{ color: '#06B6D4', fontSize: width * 0.03, fontWeight: 700, margin: '12px 0', display: 'flex' }}>
             {catchCopy}
           </div>
           <div
@@ -1073,6 +1089,7 @@ export const Template009 = (props: TemplateProps) => {
               fontSize: width * 0.024,
               lineHeight: 1.8,
               flex: 1,
+              display: 'flex',
             }}
           >
             {reviewText}
@@ -1086,10 +1103,12 @@ export const Template009 = (props: TemplateProps) => {
           marginTop: height * 0.03,
           paddingTop: height * 0.025,
           borderTop: '1px solid #164E63',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <div style={{ color: '#06B6D4', fontSize: width * 0.028, fontWeight: 700 }}>{serviceName}</div>
-        <div style={{ color: '#94A3B8', fontSize: width * 0.018 }}>{description}</div>
+        <div style={{ color: '#06B6D4', fontSize: width * 0.028, fontWeight: 700, display: 'flex' }}>{serviceName}</div>
+        <div style={{ color: '#94A3B8', fontSize: width * 0.018, display: 'flex' }}>{description}</div>
       </div>
     </div>
   );
