@@ -13,6 +13,20 @@ export interface TemplateProps {
   catchCopy: string;
 }
 
+// 口コミ文から印象的なフレーズを抽出
+function extractHighlight(text: string): { highlight: string; rest: string } {
+  // 最初の句点または読点で区切る
+  const match = text.match(/^(.{8,30}?[。！!、])/);
+  if (match) {
+    return { highlight: match[1], rest: text.slice(match[1].length).trim() };
+  }
+  // 見つからない場合は最初の20文字をハイライト
+  if (text.length > 20) {
+    return { highlight: text.slice(0, 20), rest: text.slice(20) };
+  }
+  return { highlight: text, rest: '' };
+}
+
 // 共通の星評価コンポーネント
 const Stars = ({ color = '#FFD700', size = 20 }: { color?: string; size?: number }) => (
   <div style={{ display: 'flex', gap: 2 }}>
@@ -80,10 +94,11 @@ const FacePhoto = ({
   );
 };
 
-// tpl-000: プロフェッショナル推薦（黒×ゴールド）
+// tpl-000: プレミアムマガジン風（黒×ゴールド）
 export const Template000 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.35;
+  const photoSize = Math.min(width, height) * 0.4;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
@@ -94,97 +109,120 @@ export const Template000 = (props: TemplateProps) => {
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'Noto Sans JP, sans-serif',
-        padding: width * 0.045,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      {/* 上部：推薦ラベル */}
+      {/* 左側の装飾ライン */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          marginBottom: height * 0.02,
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: '#D4A853',
-            color: '#0A0A0A',
-            padding: '6px 16px',
-            fontSize: width * 0.02,
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            display: 'flex',
-          }}
-        >
-          RECOMMEND
-        </div>
-        <div style={{ flex: 1, height: 2, backgroundColor: '#D4A853', marginLeft: 12, display: 'flex' }} />
-      </div>
-
-      {/* キャッチコピー */}
-      <div
-        style={{
-          color: '#FFFFFF',
-          fontSize: width * 0.055,
-          fontWeight: 900,
-          lineHeight: 1.2,
-          marginBottom: height * 0.025,
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: 8,
+          height: '100%',
+          background: 'linear-gradient(180deg, #D4A853 0%, #8B6914 100%)',
           display: 'flex',
         }}
-      >
-        {catchCopy}
-      </div>
+      />
 
-      {/* 中央エリア：顔写真と口コミ */}
-      <div style={{ display: 'flex', flex: 1, gap: width * 0.04 }}>
-        {/* 左：顔写真エリア */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <FacePhoto
-            faceUrl={faceUrl}
-            ownerName={ownerName}
-            size={photoSize}
-            borderColor="#D4A853"
-            borderWidth={5}
-          />
-          {ownerName && (
-            <div style={{ color: '#D4A853', fontSize: width * 0.028, marginTop: 10, fontWeight: 600, display: 'flex' }}>
-              {ownerName} 様
-            </div>
-          )}
-          <div style={{ marginTop: 6, display: 'flex' }}>
-            <Stars color="#D4A853" size={width * 0.032} />
-          </div>
-        </div>
-
-        {/* 右：口コミ文 */}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}
-        >
-          <div style={{ color: '#D4A853', fontSize: width * 0.08, lineHeight: 0.7, marginBottom: 6, display: 'flex' }}>
-            &ldquo;
-          </div>
+      {/* コンテンツエリア */}
+      <div style={{ display: 'flex', flex: 1, padding: width * 0.05, paddingLeft: width * 0.06 }}>
+        {/* 左側：顔写真とキャッチ */}
+        <div style={{ display: 'flex', flexDirection: 'column', width: '45%' }}>
+          {/* RECOMMENDバッジ */}
           <div
             style={{
-              color: '#FFFFFF',
-              fontSize: width * 0.032,
-              lineHeight: 1.75,
+              backgroundColor: '#D4A853',
+              color: '#0A0A0A',
+              padding: '8px 20px',
+              fontSize: width * 0.018,
+              fontWeight: 800,
+              letterSpacing: '0.15em',
+              marginBottom: height * 0.025,
+              alignSelf: 'flex-start',
               display: 'flex',
             }}
           >
-            {reviewText}
+            ★ RECOMMEND
           </div>
-          <div style={{ color: '#D4A853', fontSize: width * 0.08, lineHeight: 0.7, display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
+
+          {/* 顔写真 */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: height * 0.02 }}>
+            <FacePhoto
+              faceUrl={faceUrl}
+              ownerName={ownerName}
+              size={photoSize}
+              borderColor="#D4A853"
+              borderWidth={6}
+            />
+          </div>
+
+          {/* 名前と星 */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {ownerName && (
+              <div style={{ color: '#D4A853', fontSize: width * 0.032, fontWeight: 700, display: 'flex' }}>
+                {ownerName} 様
+              </div>
+            )}
+            <div style={{ marginTop: 8, display: 'flex' }}>
+              <Stars color="#D4A853" size={width * 0.032} />
+            </div>
+          </div>
+        </div>
+
+        {/* 右側：口コミテキスト */}
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, paddingLeft: width * 0.04 }}>
+          {/* 大きな引用符 */}
+          <div style={{ color: '#D4A853', fontSize: width * 0.15, lineHeight: 0.6, marginBottom: 10, display: 'flex' }}>
+            &ldquo;
+          </div>
+
+          {/* キャッチコピー（大きく） */}
+          <div
+            style={{
+              color: '#FFFFFF',
+              fontSize: width * 0.055,
+              fontWeight: 900,
+              lineHeight: 1.3,
+              marginBottom: height * 0.025,
+              display: 'flex',
+            }}
+          >
+            {catchCopy}
+          </div>
+
+          {/* ハイライト部分（強調） */}
+          <div
+            style={{
+              color: '#D4A853',
+              fontSize: width * 0.032,
+              fontWeight: 700,
+              lineHeight: 1.6,
+              marginBottom: 12,
+              display: 'flex',
+            }}
+          >
+            {highlight}
+          </div>
+
+          {/* 残りの口コミ文 */}
+          {rest && (
+            <div
+              style={{
+                color: '#CCCCCC',
+                fontSize: width * 0.026,
+                lineHeight: 1.7,
+                flex: 1,
+                display: 'flex',
+              }}
+            >
+              {rest}
+            </div>
+          )}
+
+          {/* 閉じ引用符 */}
+          <div style={{ color: '#D4A853', fontSize: width * 0.08, lineHeight: 0.5, alignSelf: 'flex-end', display: 'flex' }}>
             &rdquo;
           </div>
         </div>
@@ -195,28 +233,32 @@ export const Template000 = (props: TemplateProps) => {
         style={{
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: `${height * 0.025}px ${width * 0.05}px`,
           borderTop: '2px solid #333',
-          paddingTop: height * 0.018,
-          marginTop: height * 0.02,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {logoUrl && (
-            <img src={logoUrl} alt="logo" style={{ height: height * 0.055, marginRight: 12 }} />
+            <img src={logoUrl} alt="logo" style={{ height: height * 0.05, marginRight: 12 }} />
           )}
           <div style={{ color: '#D4A853', fontSize: width * 0.032, fontWeight: 700, display: 'flex' }}>
             {serviceName}
           </div>
+        </div>
+        <div style={{ color: '#666', fontSize: width * 0.018, display: 'flex' }}>
+          お客様の声より
         </div>
       </div>
     </div>
   );
 };
 
-// tpl-001: モダンカード（白×イエロー）
+// tpl-001: スタイリッシュカード（白×イエロー）
 export const Template001 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.32;
+  const photoSize = Math.min(width, height) * 0.35;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
@@ -225,97 +267,151 @@ export const Template001 = (props: TemplateProps) => {
         height,
         backgroundColor: '#FFFFFF',
         display: 'flex',
-        flexDirection: 'column',
         fontFamily: 'Noto Sans JP, sans-serif',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      {/* 上部アクセントバー */}
-      <div style={{ height: 8, backgroundColor: '#FFD700', display: 'flex' }} />
-
-      {/* ヘッダー */}
+      {/* 左側の写真エリア */}
       <div
         style={{
+          width: '42%',
+          backgroundColor: '#1A1A1A',
           display: 'flex',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
           alignItems: 'center',
-          padding: `${height * 0.025}px ${width * 0.04}px`,
-          borderBottom: '1px solid #E5E7EB',
+          justifyContent: 'center',
+          padding: width * 0.04,
+          position: 'relative',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        {/* 装飾ライン */}
+        <div
+          style={{
+            position: 'absolute',
+            top: height * 0.08,
+            left: width * 0.02,
+            width: 60,
+            height: 4,
+            backgroundColor: '#FFD700',
+            display: 'flex',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: height * 0.08,
+            right: width * 0.02,
+            width: 60,
+            height: 4,
+            backgroundColor: '#FFD700',
+            display: 'flex',
+          }}
+        />
+
+        {/* 顔写真 */}
+        <FacePhoto
+          faceUrl={faceUrl}
+          ownerName={ownerName}
+          size={photoSize}
+          borderColor="#FFD700"
+          borderWidth={6}
+        />
+        {ownerName && (
+          <div style={{ color: '#FFD700', fontSize: width * 0.03, fontWeight: 700, marginTop: 14, display: 'flex' }}>
+            {ownerName} 様
+          </div>
+        )}
+        <div style={{ marginTop: 10, display: 'flex' }}>
+          <Stars color="#FFD700" size={width * 0.028} />
+        </div>
+      </div>
+
+      {/* 右側のテキストエリア */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: width * 0.045 }}>
+        {/* ヘッダー */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: height * 0.02 }}>
           {logoUrl && (
-            <img src={logoUrl} alt="logo" style={{ height: height * 0.045, marginRight: 12 }} />
+            <img src={logoUrl} alt="logo" style={{ height: height * 0.045, marginRight: 10 }} />
           )}
-          <div style={{ color: '#1A1A1A', fontSize: width * 0.038, fontWeight: 900, display: 'flex' }}>
+          <div style={{ color: '#1A1A1A', fontSize: width * 0.028, fontWeight: 800, display: 'flex' }}>
             {serviceName}
           </div>
         </div>
-        <Stars color="#FFD700" size={width * 0.028} />
-      </div>
 
-      {/* メインコンテンツ */}
-      <div style={{ display: 'flex', flex: 1, padding: width * 0.04, gap: width * 0.035 }}>
-        {/* 左：顔写真 */}
+        {/* アクセントライン */}
+        <div style={{ width: 50, height: 5, backgroundColor: '#FFD700', marginBottom: height * 0.025, display: 'flex' }} />
+
+        {/* キャッチコピー */}
         <div
           style={{
+            color: '#1A1A1A',
+            fontSize: width * 0.048,
+            fontWeight: 900,
+            lineHeight: 1.25,
+            marginBottom: height * 0.02,
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
           }}
         >
-          <FacePhoto
-            faceUrl={faceUrl}
-            ownerName={ownerName}
-            size={photoSize}
-            borderColor="#FFD700"
-            borderWidth={5}
-          />
-          {ownerName && (
-            <div style={{ color: '#1A1A1A', fontSize: width * 0.026, marginTop: 10, fontWeight: 700, display: 'flex' }}>
-              {ownerName} 様
-            </div>
-          )}
+          {catchCopy}
         </div>
 
-        {/* 右：口コミカード */}
+        {/* ハイライトボックス */}
         <div
           style={{
-            flex: 1,
             backgroundColor: '#FFFBEB',
-            borderRadius: 14,
-            padding: width * 0.035,
             borderLeft: '5px solid #FFD700',
+            padding: width * 0.03,
+            marginBottom: height * 0.02,
             display: 'flex',
-            flexDirection: 'column',
           }}
         >
-          <div style={{ color: '#B45309', fontSize: width * 0.038, fontWeight: 800, marginBottom: 12, display: 'flex' }}>
-            {catchCopy}
+          <div style={{ color: '#B45309', fontSize: width * 0.028, fontWeight: 700, lineHeight: 1.6, display: 'flex' }}>
+            {highlight}
           </div>
+        </div>
+
+        {/* 残りの文章 */}
+        {rest && (
           <div
             style={{
-              color: '#1A1A1A',
-              fontSize: width * 0.03,
+              color: '#4A4A4A',
+              fontSize: width * 0.024,
               lineHeight: 1.7,
               flex: 1,
               display: 'flex',
             }}
           >
-            {reviewText}
+            {rest}
+          </div>
+        )}
+
+        {/* VOICEラベル */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'auto' }}>
+          <div
+            style={{
+              backgroundColor: '#1A1A1A',
+              color: '#FFD700',
+              padding: '6px 16px',
+              fontSize: width * 0.016,
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              display: 'flex',
+            }}
+          >
+            VOICE
           </div>
         </div>
       </div>
-
-      {/* 下部アクセントバー */}
-      <div style={{ height: 5, backgroundColor: '#FFD700', display: 'flex' }} />
     </div>
   );
 };
 
-// tpl-002: インパクト見出し（赤×黄）
+// tpl-002: インパクトヘッドライン（赤×黄）
 export const Template002 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.3;
+  const photoSize = Math.min(width, height) * 0.32;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
@@ -326,43 +422,26 @@ export const Template002 = (props: TemplateProps) => {
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'Noto Sans JP, sans-serif',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      {/* ヘッダー帯 */}
+      {/* 上部の赤帯 */}
       <div
         style={{
           backgroundColor: '#DC2626',
-          padding: `${height * 0.018}px ${width * 0.04}px`,
+          padding: `${height * 0.03}px ${width * 0.04}px`,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
         }}
       >
-        <div style={{ color: '#FFFFFF', fontSize: width * 0.018, letterSpacing: '0.15em', fontWeight: 600, display: 'flex' }}>
-          VOICE
+        <div style={{ color: '#FEF08A', fontSize: width * 0.016, letterSpacing: '0.2em', fontWeight: 700, marginBottom: 8, display: 'flex' }}>
+          ★★★★★ CUSTOMER VOICE
         </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {logoUrl && (
-            <img src={logoUrl} alt="logo" style={{ height: height * 0.035, marginRight: 10 }} />
-          )}
-          <div style={{ color: '#FFFFFF', fontSize: width * 0.024, fontWeight: 700, display: 'flex' }}>
-            {serviceName}
-          </div>
-        </div>
-      </div>
-
-      {/* キャッチコピー */}
-      <div
-        style={{
-          padding: `${height * 0.028}px ${width * 0.04}px`,
-          backgroundColor: '#111',
-          display: 'flex',
-        }}
-      >
         <div
           style={{
             color: '#FFFFFF',
-            fontSize: width * 0.055,
+            fontSize: width * 0.058,
             fontWeight: 900,
             lineHeight: 1.2,
             display: 'flex',
@@ -372,16 +451,10 @@ export const Template002 = (props: TemplateProps) => {
         </div>
       </div>
 
-      {/* メインエリア */}
-      <div style={{ display: 'flex', flex: 1, padding: width * 0.04, gap: width * 0.035 }}>
-        {/* 顔写真 */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
+      {/* メインコンテンツ */}
+      <div style={{ display: 'flex', flex: 1, padding: width * 0.04 }}>
+        {/* 左側：顔写真 */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: width * 0.04 }}>
           <FacePhoto
             faceUrl={faceUrl}
             ownerName={ownerName}
@@ -390,34 +463,65 @@ export const Template002 = (props: TemplateProps) => {
             borderWidth={5}
           />
           {ownerName && (
-            <div style={{ color: '#1A1A1A', fontSize: width * 0.024, marginTop: 8, fontWeight: 600, display: 'flex' }}>
+            <div style={{ color: '#1A1A1A', fontSize: width * 0.026, fontWeight: 700, marginTop: 10, display: 'flex' }}>
               {ownerName} 様
             </div>
           )}
-          <div style={{ marginTop: 4, display: 'flex' }}>
-            <Stars color="#FFD600" size={width * 0.026} />
+          <div style={{ marginTop: 6, display: 'flex' }}>
+            <Stars color="#DC2626" size={width * 0.024} />
           </div>
         </div>
 
-        {/* 口コミボックス */}
-        <div
-          style={{
-            flex: 1,
-            backgroundColor: '#FEF9C3',
-            borderRadius: 12,
-            padding: width * 0.035,
-            display: 'flex',
-          }}
-        >
+        {/* 右側：口コミ */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* ハイライトカード */}
           <div
             style={{
-              color: '#1A1A1A',
-              fontSize: width * 0.03,
-              lineHeight: 1.7,
+              backgroundColor: '#FEF08A',
+              borderRadius: 12,
+              padding: width * 0.03,
+              marginBottom: height * 0.02,
               display: 'flex',
             }}
           >
-            {reviewText}
+            <div style={{ color: '#1A1A1A', fontSize: width * 0.03, fontWeight: 700, lineHeight: 1.5, display: 'flex' }}>
+              「{highlight}」
+            </div>
+          </div>
+
+          {/* 残りの文章 */}
+          {rest && (
+            <div
+              style={{
+                color: '#4A4A4A',
+                fontSize: width * 0.026,
+                lineHeight: 1.7,
+                flex: 1,
+                display: 'flex',
+              }}
+            >
+              {rest}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* フッター */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: `${height * 0.02}px ${width * 0.04}px`,
+          borderTop: '3px solid #DC2626',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {logoUrl && (
+            <img src={logoUrl} alt="logo" style={{ height: height * 0.04, marginRight: 10 }} />
+          )}
+          <div style={{ color: '#DC2626', fontSize: width * 0.028, fontWeight: 800, display: 'flex' }}>
+            {serviceName}
           </div>
         </div>
       </div>
@@ -425,10 +529,11 @@ export const Template002 = (props: TemplateProps) => {
   );
 };
 
-// tpl-003: ナチュラル温かみ（コーラル×セージ）
+// tpl-003: ナチュラル温かみ（コーラル×クリーム）
 export const Template003 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.28;
+  const photoSize = Math.min(width, height) * 0.32;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
@@ -437,37 +542,40 @@ export const Template003 = (props: TemplateProps) => {
         height,
         backgroundColor: '#FFF8F0',
         display: 'flex',
-        flexDirection: 'column',
         fontFamily: 'Noto Sans JP, sans-serif',
-        padding: width * 0.04,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      {/* ヘッダー */}
+      {/* 右上の装飾円 */}
       <div
         style={{
+          position: 'absolute',
+          top: -height * 0.15,
+          right: -width * 0.1,
+          width: width * 0.4,
+          height: width * 0.4,
+          borderRadius: 9999,
+          backgroundColor: '#E8927C',
+          opacity: 0.1,
           display: 'flex',
-          alignItems: 'center',
-          marginBottom: height * 0.02,
         }}
-      >
-        {logoUrl && (
-          <img src={logoUrl} alt="logo" style={{ height: height * 0.045, marginRight: 12 }} />
-        )}
-        <div style={{ color: '#4A3728', fontSize: width * 0.032, fontWeight: 700, display: 'flex' }}>
-          {serviceName}
-        </div>
-      </div>
+      />
 
-      {/* メインエリア */}
-      <div style={{ display: 'flex', flex: 1, gap: width * 0.035 }}>
-        {/* 顔写真エリア */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
+      <div style={{ display: 'flex', flex: 1, padding: width * 0.045 }}>
+        {/* 左側：写真と情報 */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '38%' }}>
+          {/* サービス名 */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: height * 0.025 }}>
+            {logoUrl && (
+              <img src={logoUrl} alt="logo" style={{ height: height * 0.04, marginRight: 8 }} />
+            )}
+            <div style={{ color: '#E8927C', fontSize: width * 0.024, fontWeight: 700, display: 'flex' }}>
+              {serviceName}
+            </div>
+          </div>
+
+          {/* 顔写真 */}
           <FacePhoto
             faceUrl={faceUrl}
             ownerName={ownerName}
@@ -475,41 +583,89 @@ export const Template003 = (props: TemplateProps) => {
             borderColor="#E8927C"
             borderWidth={5}
           />
+
+          {/* 名前 */}
           {ownerName && (
-            <div style={{ color: '#4A3728', fontSize: width * 0.024, marginTop: 8, fontWeight: 600, display: 'flex' }}>
+            <div style={{ color: '#4A3728', fontSize: width * 0.028, fontWeight: 700, marginTop: 12, display: 'flex' }}>
               {ownerName} 様
             </div>
           )}
-        </div>
+          <div style={{ marginTop: 6, display: 'flex' }}>
+            <Stars color="#E8927C" size={width * 0.026} />
+          </div>
 
-        {/* 口コミカード */}
-        <div
-          style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: 16,
-            padding: width * 0.035,
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: '0 4px 20px rgba(232, 146, 124, 0.15)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
-            <Stars color="#E8927C" size={width * 0.028} />
-          </div>
-          <div style={{ color: '#E8927C', fontSize: width * 0.036, fontWeight: 700, marginBottom: 12, display: 'flex' }}>
-            {catchCopy}
-          </div>
+          {/* 「おすすめ」バッジ */}
           <div
             style={{
-              color: '#4A3728',
-              fontSize: width * 0.028,
-              lineHeight: 1.75,
-              flex: 1,
+              backgroundColor: '#E8927C',
+              color: '#FFFFFF',
+              padding: '8px 20px',
+              borderRadius: 20,
+              fontSize: width * 0.02,
+              fontWeight: 700,
+              marginTop: height * 0.025,
               display: 'flex',
             }}
           >
-            {reviewText}
+            ♥ おすすめします
+          </div>
+        </div>
+
+        {/* 右側：口コミカード */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: width * 0.035 }}>
+          {/* 引用符 */}
+          <div style={{ color: '#E8927C', fontSize: width * 0.12, lineHeight: 0.5, marginBottom: 8, display: 'flex' }}>
+            &ldquo;
+          </div>
+
+          {/* キャッチコピー */}
+          <div
+            style={{
+              color: '#4A3728',
+              fontSize: width * 0.046,
+              fontWeight: 900,
+              lineHeight: 1.3,
+              marginBottom: height * 0.02,
+              display: 'flex',
+            }}
+          >
+            {catchCopy}
+          </div>
+
+          {/* ハイライト */}
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 12,
+              padding: width * 0.03,
+              marginBottom: height * 0.015,
+              boxShadow: '0 4px 15px rgba(232, 146, 124, 0.15)',
+              display: 'flex',
+            }}
+          >
+            <div style={{ color: '#E8927C', fontSize: width * 0.028, fontWeight: 600, lineHeight: 1.6, display: 'flex' }}>
+              {highlight}
+            </div>
+          </div>
+
+          {/* 残りの文章 */}
+          {rest && (
+            <div
+              style={{
+                color: '#6B5B4F',
+                fontSize: width * 0.024,
+                lineHeight: 1.7,
+                flex: 1,
+                display: 'flex',
+              }}
+            >
+              {rest}
+            </div>
+          )}
+
+          {/* 閉じ引用符 */}
+          <div style={{ color: '#E8927C', fontSize: width * 0.08, lineHeight: 0.5, alignSelf: 'flex-end', display: 'flex' }}>
+            &rdquo;
           </div>
         </div>
       </div>
@@ -520,7 +676,8 @@ export const Template003 = (props: TemplateProps) => {
 // tpl-004: ミニマル和モダン（墨×金茶）
 export const Template004 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.22;
+  const photoSize = Math.min(width, height) * 0.28;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
@@ -530,76 +687,153 @@ export const Template004 = (props: TemplateProps) => {
         backgroundColor: '#F7F3EE',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
         fontFamily: 'Noto Sans JP, sans-serif',
-        padding: width * 0.05,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      {/* 見出し */}
-      <div style={{ color: '#C4956A', fontSize: width * 0.022, letterSpacing: '0.25em', marginBottom: 12, display: 'flex' }}>
-        VOICE
-      </div>
-      <div style={{ width: width * 0.4, height: 1, backgroundColor: '#2C2C2C', marginBottom: height * 0.025, display: 'flex' }} />
-
-      {/* 顔写真 */}
-      <FacePhoto
-        faceUrl={faceUrl}
-        ownerName={ownerName}
-        size={photoSize}
-        borderColor="#C4956A"
-        borderWidth={3}
-      />
-      {ownerName && (
-        <div style={{ color: '#2C2C2C', fontSize: width * 0.024, marginTop: 10, display: 'flex' }}>
-          {ownerName} 様
-        </div>
-      )}
-
-      {/* 区切り線 */}
-      <div style={{ width: width * 0.6, height: 1, backgroundColor: '#2C2C2C', margin: `${height * 0.025}px 0`, display: 'flex' }} />
-
-      {/* キャッチコピー */}
-      <div style={{ color: '#C4956A', fontSize: width * 0.038, fontWeight: 700, marginBottom: 14, textAlign: 'center', display: 'flex' }}>
-        {catchCopy}
-      </div>
-
-      {/* 口コミ文 */}
+      {/* 上部の装飾ライン */}
       <div
         style={{
-          color: '#2C2C2C',
-          fontSize: width * 0.028,
-          lineHeight: 1.9,
-          textAlign: 'center',
-          flex: 1,
+          height: 3,
+          background: 'linear-gradient(90deg, transparent 0%, #C4956A 50%, transparent 100%)',
+          display: 'flex',
+        }}
+      />
+
+      {/* メインコンテンツ */}
+      <div style={{ display: 'flex', flex: 1, padding: width * 0.05 }}>
+        {/* 左側：縦書き風の装飾と写真 */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '35%' }}>
+          {/* VOICEラベル */}
+          <div
+            style={{
+              color: '#C4956A',
+              fontSize: width * 0.018,
+              letterSpacing: '0.3em',
+              fontWeight: 600,
+              marginBottom: height * 0.02,
+              display: 'flex',
+            }}
+          >
+            ─ VOICE ─
+          </div>
+
+          {/* 顔写真 */}
+          <FacePhoto
+            faceUrl={faceUrl}
+            ownerName={ownerName}
+            size={photoSize}
+            borderColor="#C4956A"
+            borderWidth={3}
+          />
+
+          {/* 名前 */}
+          {ownerName && (
+            <div style={{ color: '#2C2C2C', fontSize: width * 0.026, fontWeight: 600, marginTop: 12, display: 'flex' }}>
+              {ownerName} 様
+            </div>
+          )}
+
+          {/* 星評価 */}
+          <div style={{ marginTop: 8, display: 'flex' }}>
+            <Stars color="#C4956A" size={width * 0.024} />
+          </div>
+        </div>
+
+        {/* 右側：口コミ */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: width * 0.04 }}>
+          {/* キャッチコピー */}
+          <div
+            style={{
+              color: '#C4956A',
+              fontSize: width * 0.048,
+              fontWeight: 800,
+              lineHeight: 1.3,
+              marginBottom: height * 0.025,
+              display: 'flex',
+            }}
+          >
+            {catchCopy}
+          </div>
+
+          {/* 装飾ライン */}
+          <div
+            style={{
+              width: width * 0.15,
+              height: 2,
+              backgroundColor: '#2C2C2C',
+              marginBottom: height * 0.02,
+              display: 'flex',
+            }}
+          />
+
+          {/* ハイライト */}
+          <div
+            style={{
+              color: '#2C2C2C',
+              fontSize: width * 0.032,
+              fontWeight: 700,
+              lineHeight: 1.7,
+              marginBottom: height * 0.015,
+              borderLeft: '3px solid #C4956A',
+              paddingLeft: width * 0.025,
+              display: 'flex',
+            }}
+          >
+            {highlight}
+          </div>
+
+          {/* 残りの文章 */}
+          {rest && (
+            <div
+              style={{
+                color: '#5A5A5A',
+                fontSize: width * 0.026,
+                lineHeight: 1.8,
+                flex: 1,
+                display: 'flex',
+              }}
+            >
+              {rest}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* フッター */}
+      <div
+        style={{
           display: 'flex',
           alignItems: 'center',
-          padding: `0 ${width * 0.02}px`,
+          justifyContent: 'center',
+          padding: `${height * 0.025}px ${width * 0.05}px`,
+          borderTop: '1px solid #D4C4B0',
         }}
       >
-        {reviewText}
-      </div>
-
-      {/* 区切り線 */}
-      <div style={{ width: width * 0.6, height: 1, backgroundColor: '#2C2C2C', margin: `${height * 0.02}px 0`, display: 'flex' }} />
-
-      {/* 星評価 */}
-      <Stars color="#C4956A" size={width * 0.026} />
-
-      {/* サービス情報 */}
-      <div style={{ marginTop: height * 0.02, display: 'flex', alignItems: 'center' }}>
         {logoUrl && (
-          <img src={logoUrl} alt="logo" style={{ height: height * 0.038, marginRight: 10 }} />
+          <img src={logoUrl} alt="logo" style={{ height: height * 0.04, marginRight: 12 }} />
         )}
-        <div style={{ color: '#8C8C8C', fontSize: width * 0.022, display: 'flex' }}>{serviceName}</div>
+        <div style={{ color: '#8C8C8C', fontSize: width * 0.024, display: 'flex' }}>{serviceName}</div>
       </div>
+
+      {/* 下部の装飾ライン */}
+      <div
+        style={{
+          height: 3,
+          background: 'linear-gradient(90deg, transparent 0%, #C4956A 50%, transparent 100%)',
+          display: 'flex',
+        }}
+      />
     </div>
   );
 };
 
-// tpl-005: ビフォーアフター（青系ビジネス）
+// tpl-005: プロフェッショナルビジネス（青系）
 export const Template005 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.28;
+  const photoSize = Math.min(width, height) * 0.35;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
@@ -610,30 +844,51 @@ export const Template005 = (props: TemplateProps) => {
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'Noto Sans JP, sans-serif',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
       {/* ヘッダー */}
       <div
         style={{
           backgroundColor: '#2563EB',
-          padding: `${height * 0.02}px ${width * 0.04}px`,
+          padding: `${height * 0.025}px ${width * 0.04}px`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <div style={{ color: '#FFFFFF', fontSize: width * 0.026, fontWeight: 700, display: 'flex' }}>お客様の声</div>
-        <Stars color="#FFFFFF" size={width * 0.026} />
-      </div>
-
-      {/* メイン */}
-      <div style={{ display: 'flex', flex: 1 }}>
-        {/* 左：顔写真 */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {logoUrl && (
+            <img src={logoUrl} alt="logo" style={{ height: height * 0.04, marginRight: 12 }} />
+          )}
+          <div style={{ color: '#FFFFFF', fontSize: width * 0.028, fontWeight: 700, display: 'flex' }}>
+            {serviceName}
+          </div>
+        </div>
         <div
           style={{
-            width: '38%',
+            backgroundColor: '#FFFFFF',
+            color: '#2563EB',
+            padding: '6px 16px',
+            borderRadius: 20,
+            fontSize: width * 0.016,
+            fontWeight: 700,
+            display: 'flex',
+          }}
+        >
+          ★★★★★ お客様の声
+        </div>
+      </div>
+
+      {/* メインコンテンツ */}
+      <div style={{ display: 'flex', flex: 1 }}>
+        {/* 左側：顔写真エリア */}
+        <div
+          style={{
+            width: '40%',
             backgroundColor: '#F1F5F9',
-            padding: width * 0.03,
+            padding: width * 0.035,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -648,54 +903,91 @@ export const Template005 = (props: TemplateProps) => {
             borderWidth={5}
           />
           {ownerName && (
-            <div style={{ color: '#1E293B', fontSize: width * 0.026, marginTop: 10, fontWeight: 600, display: 'flex' }}>
+            <div style={{ color: '#1E293B', fontSize: width * 0.028, fontWeight: 700, marginTop: 14, display: 'flex' }}>
               {ownerName} 様
             </div>
           )}
+          <div style={{ marginTop: 8, display: 'flex' }}>
+            <Stars color="#2563EB" size={width * 0.028} />
+          </div>
         </div>
 
-        {/* 右：口コミ */}
-        <div
-          style={{
-            flex: 1,
-            padding: width * 0.035,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ color: '#2563EB', fontSize: width * 0.02, fontWeight: 700, marginBottom: 6, display: 'flex' }}>
-            ▼ ご利用後の感想
-          </div>
-          <div style={{ color: '#2563EB', fontSize: width * 0.04, fontWeight: 800, marginBottom: 12, display: 'flex' }}>
-            {catchCopy}
-          </div>
+        {/* 右側：口コミエリア */}
+        <div style={{ flex: 1, padding: width * 0.04, display: 'flex', flexDirection: 'column' }}>
+          {/* キャッチコピー */}
           <div
             style={{
-              color: '#1E293B',
-              fontSize: width * 0.028,
-              lineHeight: 1.7,
-              flex: 1,
+              color: '#2563EB',
+              fontSize: width * 0.048,
+              fontWeight: 900,
+              lineHeight: 1.25,
+              marginBottom: height * 0.02,
               display: 'flex',
             }}
           >
-            {reviewText}
+            {catchCopy}
+          </div>
+
+          {/* ハイライトボックス */}
+          <div
+            style={{
+              backgroundColor: '#EFF6FF',
+              borderLeft: '5px solid #2563EB',
+              padding: width * 0.03,
+              marginBottom: height * 0.018,
+              display: 'flex',
+            }}
+          >
+            <div style={{ color: '#1E40AF', fontSize: width * 0.028, fontWeight: 600, lineHeight: 1.5, display: 'flex' }}>
+              {highlight}
+            </div>
+          </div>
+
+          {/* 残りの文章 */}
+          {rest && (
+            <div
+              style={{
+                color: '#475569',
+                fontSize: width * 0.024,
+                lineHeight: 1.7,
+                flex: 1,
+                display: 'flex',
+              }}
+            >
+              {rest}
+            </div>
+          )}
+
+          {/* ポイントサマリー */}
+          <div style={{ display: 'flex', gap: 10, marginTop: 'auto' }}>
+            <div
+              style={{
+                backgroundColor: '#2563EB',
+                color: '#FFFFFF',
+                padding: '6px 14px',
+                borderRadius: 6,
+                fontSize: width * 0.018,
+                fontWeight: 600,
+                display: 'flex',
+              }}
+            >
+              信頼できる
+            </div>
+            <div
+              style={{
+                backgroundColor: '#2563EB',
+                color: '#FFFFFF',
+                padding: '6px 14px',
+                borderRadius: 6,
+                fontSize: width * 0.018,
+                fontWeight: 600,
+                display: 'flex',
+              }}
+            >
+              また利用したい
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* フッター */}
-      <div
-        style={{
-          padding: `${height * 0.018}px ${width * 0.04}px`,
-          borderTop: '2px solid #E2E8F0',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        {logoUrl && (
-          <img src={logoUrl} alt="logo" style={{ height: height * 0.042, marginRight: 12 }} />
-        )}
-        <div style={{ color: '#1E293B', fontSize: width * 0.026, fontWeight: 700, display: 'flex' }}>{serviceName}</div>
       </div>
     </div>
   );
@@ -704,7 +996,8 @@ export const Template005 = (props: TemplateProps) => {
 // tpl-006: プレミアムバッジ（ダーク×ゴールド）
 export const Template006 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.26;
+  const photoSize = Math.min(width, height) * 0.3;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
@@ -713,82 +1006,172 @@ export const Template006 = (props: TemplateProps) => {
         height,
         backgroundColor: '#0C1220',
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
         fontFamily: 'Noto Sans JP, sans-serif',
-        padding: width * 0.04,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      {/* TRUSTEDバッジ */}
+      {/* コーナー装飾 */}
       <div
         style={{
-          border: '2px solid #D4A853',
-          borderRadius: 9999,
-          padding: '8px 24px',
-          marginBottom: height * 0.02,
+          position: 'absolute',
+          top: width * 0.03,
+          left: width * 0.03,
+          width: 30,
+          height: 30,
+          borderTop: '3px solid #D4A853',
+          borderLeft: '3px solid #D4A853',
           display: 'flex',
         }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: width * 0.03,
+          right: width * 0.03,
+          width: 30,
+          height: 30,
+          borderTop: '3px solid #D4A853',
+          borderRight: '3px solid #D4A853',
+          display: 'flex',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: width * 0.03,
+          left: width * 0.03,
+          width: 30,
+          height: 30,
+          borderBottom: '3px solid #D4A853',
+          borderLeft: '3px solid #D4A853',
+          display: 'flex',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: width * 0.03,
+          right: width * 0.03,
+          width: 30,
+          height: 30,
+          borderBottom: '3px solid #D4A853',
+          borderRight: '3px solid #D4A853',
+          display: 'flex',
+        }}
+      />
+
+      {/* 左側：写真エリア */}
+      <div
+        style={{
+          width: '38%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: width * 0.04,
+        }}
       >
-        <div style={{ color: '#D4A853', fontSize: width * 0.02, fontWeight: 700, letterSpacing: '0.12em', display: 'flex' }}>
-          ★ TRUSTED REVIEW ★
+        {/* TRUSTEDバッジ */}
+        <div
+          style={{
+            border: '2px solid #D4A853',
+            borderRadius: 9999,
+            padding: '6px 18px',
+            marginBottom: height * 0.025,
+            display: 'flex',
+          }}
+        >
+          <div style={{ color: '#D4A853', fontSize: width * 0.016, fontWeight: 700, letterSpacing: '0.1em', display: 'flex' }}>
+            ★ TRUSTED ★
+          </div>
+        </div>
+
+        {/* 顔写真 */}
+        <FacePhoto
+          faceUrl={faceUrl}
+          ownerName={ownerName}
+          size={photoSize}
+          borderColor="#D4A853"
+          borderWidth={5}
+        />
+        {ownerName && (
+          <div style={{ color: '#FFFFFF', fontSize: width * 0.026, marginTop: 12, display: 'flex' }}>{ownerName} 様</div>
+        )}
+        <div style={{ marginTop: 8, display: 'flex' }}>
+          <Stars color="#D4A853" size={width * 0.026} />
+        </div>
+
+        {/* サービス情報 */}
+        <div style={{ marginTop: height * 0.03, display: 'flex', alignItems: 'center' }}>
+          {logoUrl && (
+            <img src={logoUrl} alt="logo" style={{ height: height * 0.035, marginRight: 10 }} />
+          )}
+          <div style={{ color: '#D4A853', fontSize: width * 0.022, fontWeight: 600, display: 'flex' }}>{serviceName}</div>
         </div>
       </div>
 
-      {/* 顔写真 */}
-      <FacePhoto
-        faceUrl={faceUrl}
-        ownerName={ownerName}
-        size={photoSize}
-        borderColor="#D4A853"
-        borderWidth={5}
-      />
-      {ownerName && (
-        <div style={{ color: '#FFFFFF', fontSize: width * 0.026, marginTop: 10, display: 'flex' }}>{ownerName} 様</div>
-      )}
+      {/* 右側：口コミエリア */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: width * 0.04, paddingLeft: 0 }}>
+        {/* 大きな引用符 */}
+        <div style={{ color: '#D4A853', fontSize: width * 0.12, lineHeight: 0.6, marginBottom: 10, display: 'flex' }}>
+          &ldquo;
+        </div>
 
-      {/* 装飾ライン */}
-      <div style={{ display: 'flex', alignItems: 'center', margin: `${height * 0.018}px 0` }}>
-        <div style={{ width: 40, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
-        <div style={{ width: 8, height: 8, backgroundColor: '#D4A853', marginLeft: 8, marginRight: 8, display: 'flex' }} />
-        <div style={{ width: 40, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
-      </div>
+        {/* キャッチコピー */}
+        <div
+          style={{
+            color: '#D4A853',
+            fontSize: width * 0.048,
+            fontWeight: 800,
+            lineHeight: 1.25,
+            marginBottom: height * 0.02,
+            display: 'flex',
+          }}
+        >
+          {catchCopy}
+        </div>
 
-      {/* キャッチコピー */}
-      <div style={{ color: '#D4A853', fontSize: width * 0.038, fontWeight: 700, marginBottom: 12, textAlign: 'center', display: 'flex' }}>
-        {catchCopy}
-      </div>
+        {/* 装飾ライン */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: height * 0.02 }}>
+          <div style={{ width: 40, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
+          <div style={{ width: 8, height: 8, backgroundColor: '#D4A853', borderRadius: 4, marginLeft: 8, marginRight: 8, display: 'flex' }} />
+          <div style={{ width: 40, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
+        </div>
 
-      {/* 口コミ文 */}
-      <div
-        style={{
-          color: '#FFFFFF',
-          fontSize: width * 0.028,
-          lineHeight: 1.7,
-          textAlign: 'center',
-          flex: 1,
-          display: 'flex',
-          padding: `0 ${width * 0.02}px`,
-        }}
-      >
-        {reviewText}
-      </div>
+        {/* ハイライト */}
+        <div
+          style={{
+            color: '#FFFFFF',
+            fontSize: width * 0.03,
+            fontWeight: 600,
+            lineHeight: 1.6,
+            marginBottom: height * 0.015,
+            display: 'flex',
+          }}
+        >
+          {highlight}
+        </div>
 
-      {/* 装飾ライン */}
-      <div style={{ display: 'flex', alignItems: 'center', margin: `${height * 0.018}px 0` }}>
-        <div style={{ width: 40, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
-        <div style={{ width: 8, height: 8, backgroundColor: '#D4A853', marginLeft: 8, marginRight: 8, display: 'flex' }} />
-        <div style={{ width: 40, height: 2, backgroundColor: '#D4A853', display: 'flex' }} />
-      </div>
-
-      {/* 星評価 */}
-      <Stars color="#D4A853" size={width * 0.03} />
-
-      {/* フッター */}
-      <div style={{ marginTop: height * 0.018, display: 'flex', alignItems: 'center' }}>
-        {logoUrl && (
-          <img src={logoUrl} alt="logo" style={{ height: height * 0.04, marginRight: 12 }} />
+        {/* 残りの文章 */}
+        {rest && (
+          <div
+            style={{
+              color: '#9CA3AF',
+              fontSize: width * 0.024,
+              lineHeight: 1.7,
+              flex: 1,
+              display: 'flex',
+            }}
+          >
+            {rest}
+          </div>
         )}
-        <div style={{ color: '#D4A853', fontSize: width * 0.026, fontWeight: 700, display: 'flex' }}>{serviceName}</div>
+
+        {/* 閉じ引用符 */}
+        <div style={{ color: '#D4A853', fontSize: width * 0.08, lineHeight: 0.5, alignSelf: 'flex-end', display: 'flex' }}>
+          &rdquo;
+        </div>
       </div>
     </div>
   );
@@ -797,7 +1180,8 @@ export const Template006 = (props: TemplateProps) => {
 // tpl-007: マガジンインタビュー（赤アクセント）
 export const Template007 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.38;
+  const photoSize = Math.min(width, height) * 0.42;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
@@ -806,92 +1190,121 @@ export const Template007 = (props: TemplateProps) => {
         height,
         backgroundColor: '#FFFFFF',
         display: 'flex',
-        flexDirection: 'column',
         fontFamily: 'Noto Sans JP, sans-serif',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      {/* ヘッダー帯 */}
+      {/* 左側：写真エリア */}
       <div
         style={{
-          backgroundColor: '#DC2626',
-          padding: `${height * 0.015}px ${width * 0.04}px`,
+          width: '45%',
+          backgroundColor: '#F9FAFB',
           display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: width * 0.04,
+          borderRight: '1px solid #E5E7EB',
         }}
       >
-        <div style={{ color: '#FFFFFF', fontSize: width * 0.016, letterSpacing: '0.15em', fontWeight: 600, display: 'flex' }}>
-          CUSTOMER INTERVIEW
+        {/* ヘッダー帯 */}
+        <div
+          style={{
+            backgroundColor: '#DC2626',
+            padding: '8px 20px',
+            marginBottom: height * 0.025,
+            display: 'flex',
+          }}
+        >
+          <div style={{ color: '#FFFFFF', fontSize: width * 0.016, letterSpacing: '0.15em', fontWeight: 700, display: 'flex' }}>
+            INTERVIEW
+          </div>
+        </div>
+
+        {/* 顔写真 */}
+        <FacePhoto
+          faceUrl={faceUrl}
+          ownerName={ownerName}
+          size={photoSize}
+          borderColor="#1A1A1A"
+          borderWidth={4}
+          rounded={false}
+        />
+
+        {/* 名前 */}
+        {ownerName && (
+          <div style={{ color: '#1A1A1A', fontSize: width * 0.03, fontWeight: 800, marginTop: 14, display: 'flex' }}>
+            {ownerName} 様
+          </div>
+        )}
+
+        {/* サービス情報 */}
+        <div style={{ display: 'flex', alignItems: 'center', marginTop: 10 }}>
+          {logoUrl && (
+            <img src={logoUrl} alt="logo" style={{ height: height * 0.035, marginRight: 8 }} />
+          )}
+          <div style={{ color: '#DC2626', fontSize: width * 0.022, fontWeight: 600, display: 'flex' }}>
+            {serviceName}
+          </div>
         </div>
       </div>
 
-      {/* メインコンテンツ */}
-      <div style={{ display: 'flex', flex: 1, padding: width * 0.035 }}>
-        {/* 左カラム：顔写真 */}
-        <div
-          style={{
-            width: '40%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            paddingRight: width * 0.03,
-            borderRight: '1px solid #E5E7EB',
-          }}
-        >
-          <FacePhoto
-            faceUrl={faceUrl}
-            ownerName={ownerName}
-            size={photoSize}
-            borderColor="#1A1A1A"
-            borderWidth={3}
-            rounded={false}
-          />
-          {ownerName && (
-            <div style={{ color: '#1A1A1A', fontSize: width * 0.028, fontWeight: 700, marginTop: 12, display: 'flex' }}>
-              {ownerName} 様
-            </div>
-          )}
-          <div style={{ color: '#DC2626', fontSize: width * 0.022, marginTop: 6, fontWeight: 600, display: 'flex' }}>
-            {serviceName}
-          </div>
-          {logoUrl && (
-            <img src={logoUrl} alt="logo" style={{ height: height * 0.042, marginTop: 12 }} />
-          )}
+      {/* 右側：口コミエリア */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: width * 0.04 }}>
+        {/* 装飾引用符 */}
+        <div style={{ color: '#DC2626', fontSize: width * 0.1, lineHeight: 0.6, marginBottom: 10, display: 'flex' }}>
+          &ldquo;
         </div>
 
-        {/* 右カラム：口コミ */}
+        {/* キャッチコピー */}
         <div
           style={{
-            flex: 1,
-            paddingLeft: width * 0.03,
+            color: '#1A1A1A',
+            fontSize: width * 0.048,
+            fontWeight: 900,
+            lineHeight: 1.3,
+            marginBottom: height * 0.02,
             display: 'flex',
-            flexDirection: 'column',
           }}
         >
-          {/* 装飾引用符 */}
-          <div style={{ color: '#DC2626', fontSize: width * 0.08, lineHeight: 0.6, marginBottom: 6, display: 'flex' }}>
-            &ldquo;
-          </div>
+          {catchCopy}
+        </div>
 
-          {/* キャッチコピー */}
-          <div style={{ color: '#1A1A1A', fontSize: width * 0.036, fontWeight: 800, marginBottom: 14, display: 'flex' }}>
-            {catchCopy}
+        {/* ハイライトボックス */}
+        <div
+          style={{
+            backgroundColor: '#FEF2F2',
+            borderLeft: '5px solid #DC2626',
+            padding: width * 0.025,
+            marginBottom: height * 0.018,
+            display: 'flex',
+          }}
+        >
+          <div style={{ color: '#991B1B', fontSize: width * 0.028, fontWeight: 600, lineHeight: 1.5, display: 'flex' }}>
+            {highlight}
           </div>
+        </div>
 
-          {/* 口コミ文 */}
+        {/* 残りの文章 */}
+        {rest && (
           <div
             style={{
-              color: '#1A1A1A',
-              fontSize: width * 0.026,
+              color: '#4A4A4A',
+              fontSize: width * 0.024,
               lineHeight: 1.8,
               flex: 1,
               display: 'flex',
             }}
           >
-            {reviewText}
+            {rest}
           </div>
+        )}
 
-          {/* 星評価 */}
-          <div style={{ marginTop: 12, display: 'flex' }}>
-            <Stars color="#DC2626" size={width * 0.028} />
+        {/* 星評価 */}
+        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center' }}>
+          <Stars color="#DC2626" size={width * 0.028} />
+          <div style={{ color: '#DC2626', fontSize: width * 0.018, fontWeight: 600, marginLeft: 12, display: 'flex' }}>
+            満足度 ★★★★★
           </div>
         </div>
       </div>
@@ -902,92 +1315,190 @@ export const Template007 = (props: TemplateProps) => {
 // tpl-008: ポップカジュアル（ピンク×パープル）
 export const Template008 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.3;
+  const photoSize = Math.min(width, height) * 0.35;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
       style={{
         width,
         height,
-        background: 'linear-gradient(180deg, #FDF2F8 0%, #EDE9FE 100%)',
+        background: 'linear-gradient(135deg, #FDF2F8 0%, #EDE9FE 50%, #DBEAFE 100%)',
         display: 'flex',
-        flexDirection: 'column',
         fontFamily: 'Noto Sans JP, sans-serif',
-        padding: width * 0.04,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      {/* ヘッダー */}
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: height * 0.015 }}>
-        {logoUrl && (
-          <img src={logoUrl} alt="logo" style={{ height: height * 0.04, marginRight: 10 }} />
-        )}
-        <div style={{ color: '#EC4899', fontSize: width * 0.026, fontWeight: 700, display: 'flex' }}>
-          {serviceName}
-        </div>
-      </div>
+      {/* 装飾の円 */}
+      <div
+        style={{
+          position: 'absolute',
+          top: -height * 0.1,
+          right: -width * 0.05,
+          width: width * 0.3,
+          height: width * 0.3,
+          borderRadius: 9999,
+          backgroundColor: '#EC4899',
+          opacity: 0.1,
+          display: 'flex',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: -height * 0.08,
+          left: -width * 0.05,
+          width: width * 0.25,
+          height: width * 0.25,
+          borderRadius: 9999,
+          backgroundColor: '#8B5CF6',
+          opacity: 0.1,
+          display: 'flex',
+        }}
+      />
 
-      {/* メインエリア */}
-      <div style={{ display: 'flex', flex: 1, gap: width * 0.03 }}>
-        {/* 顔写真 */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <FacePhoto
-            faceUrl={faceUrl}
-            ownerName={ownerName}
-            size={photoSize}
-            borderColor="#FFFFFF"
-            borderWidth={6}
-          />
+      {/* コンテンツ */}
+      <div style={{ display: 'flex', flex: 1, padding: width * 0.04 }}>
+        {/* 左側：写真 */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '38%' }}>
+          {/* ヘッダー */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: height * 0.02 }}>
+            {logoUrl && (
+              <img src={logoUrl} alt="logo" style={{ height: height * 0.035, marginRight: 8 }} />
+            )}
+            <div style={{ color: '#EC4899', fontSize: width * 0.022, fontWeight: 700, display: 'flex' }}>
+              {serviceName}
+            </div>
+          </div>
+
+          {/* 顔写真 */}
+          <div style={{ position: 'relative', display: 'flex' }}>
+            <FacePhoto
+              faceUrl={faceUrl}
+              ownerName={ownerName}
+              size={photoSize}
+              borderColor="#FFFFFF"
+              borderWidth={6}
+            />
+            {/* ハートバッジ */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                backgroundColor: '#EC4899',
+                color: '#FFFFFF',
+                padding: '6px 12px',
+                borderRadius: 20,
+                fontSize: width * 0.018,
+                fontWeight: 700,
+                display: 'flex',
+              }}
+            >
+              ♥ LOVE
+            </div>
+          </div>
+
+          {/* 名前 */}
           {ownerName && (
-            <div style={{ color: '#EC4899', fontSize: width * 0.024, fontWeight: 700, marginTop: 8, display: 'flex' }}>
+            <div style={{ color: '#EC4899', fontSize: width * 0.028, fontWeight: 700, marginTop: 12, display: 'flex' }}>
               {ownerName} さん
             </div>
           )}
+          <div style={{ marginTop: 6, display: 'flex' }}>
+            <Stars color="#EC4899" size={width * 0.026} />
+          </div>
         </div>
 
-        {/* 口コミカード */}
+        {/* 右側：口コミカード */}
         <div
           style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: 20,
-            padding: width * 0.035,
             flex: 1,
+            backgroundColor: '#FFFFFF',
+            borderRadius: 24,
+            padding: width * 0.04,
+            marginLeft: width * 0.03,
+            boxShadow: '0 8px 30px rgba(236, 72, 153, 0.15)',
             display: 'flex',
             flexDirection: 'column',
-            boxShadow: '0 6px 24px rgba(236, 72, 153, 0.15)',
           }}
         >
-          <Stars color="#EC4899" size={width * 0.026} />
-          <div style={{ color: '#EC4899', fontSize: width * 0.036, fontWeight: 800, margin: '10px 0', display: 'flex' }}>
-            {catchCopy}
-          </div>
+          {/* キャッチコピー */}
           <div
             style={{
-              color: '#1F2937',
-              fontSize: width * 0.028,
-              lineHeight: 1.7,
-              flex: 1,
+              color: '#EC4899',
+              fontSize: width * 0.044,
+              fontWeight: 900,
+              lineHeight: 1.3,
+              marginBottom: height * 0.02,
               display: 'flex',
             }}
           >
-            {reviewText}
+            {catchCopy}
+          </div>
+
+          {/* ハイライト吹き出し */}
+          <div
+            style={{
+              backgroundColor: '#FDF2F8',
+              borderRadius: 16,
+              padding: width * 0.025,
+              marginBottom: height * 0.015,
+              position: 'relative',
+              display: 'flex',
+            }}
+          >
+            <div style={{ color: '#BE185D', fontSize: width * 0.026, fontWeight: 600, lineHeight: 1.5, display: 'flex' }}>
+              {highlight}
+            </div>
+          </div>
+
+          {/* 残りの文章 */}
+          {rest && (
+            <div
+              style={{
+                color: '#6B7280',
+                fontSize: width * 0.022,
+                lineHeight: 1.7,
+                flex: 1,
+                display: 'flex',
+              }}
+            >
+              {rest}
+            </div>
+          )}
+
+          {/* ハッシュタグ */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 'auto' }}>
+            <span
+              style={{
+                color: '#8B5CF6',
+                backgroundColor: '#EDE9FE',
+                padding: '4px 12px',
+                borderRadius: 12,
+                fontSize: width * 0.018,
+                fontWeight: 600,
+                display: 'flex',
+              }}
+            >
+              #おすすめ
+            </span>
+            <span
+              style={{
+                color: '#EC4899',
+                backgroundColor: '#FDF2F8',
+                padding: '4px 12px',
+                borderRadius: 12,
+                fontSize: width * 0.018,
+                fontWeight: 600,
+                display: 'flex',
+              }}
+            >
+              #リピート確定
+            </span>
           </div>
         </div>
-      </div>
-
-      {/* ハッシュタグ */}
-      <div style={{ display: 'flex', marginTop: height * 0.018, justifyContent: 'center' }}>
-        <span style={{ color: '#8B5CF6', fontSize: width * 0.02, fontWeight: 600, marginRight: 14, display: 'flex' }}>
-          #おすすめ
-        </span>
-        <span style={{ color: '#8B5CF6', fontSize: width * 0.02, fontWeight: 600, display: 'flex' }}>
-          #リピート確定
-        </span>
       </div>
     </div>
   );
@@ -996,7 +1507,8 @@ export const Template008 = (props: TemplateProps) => {
 // tpl-009: データドリブン（ダーク×シアン）
 export const Template009 = (props: TemplateProps) => {
   const { serviceName, ownerName, reviewText, faceUrl, logoUrl, width, height, catchCopy } = props;
-  const photoSize = Math.min(width, height) * 0.24;
+  const photoSize = Math.min(width, height) * 0.28;
+  const { highlight, rest } = extractHighlight(reviewText);
 
   return (
     <div
@@ -1007,50 +1519,98 @@ export const Template009 = (props: TemplateProps) => {
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'Noto Sans JP, sans-serif',
-        padding: width * 0.04,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      {/* メイン数字 */}
-      <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: height * 0.012 }}>
-        <span style={{ color: '#06B6D4', fontSize: width * 0.045, marginRight: 8, display: 'flex' }}>★</span>
-        <span
-          style={{
-            color: '#06B6D4',
-            fontSize: width * 0.12,
-            fontWeight: 900,
-            display: 'flex',
-          }}
-        >
-          4.9
-        </span>
-      </div>
-      <div style={{ color: '#FFFFFF', fontSize: width * 0.024, marginBottom: height * 0.025, display: 'flex' }}>
-        お客様満足度
+      {/* グリッド装飾（背景） */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          opacity: 0.05,
+          backgroundImage: 'linear-gradient(#06B6D4 1px, transparent 1px), linear-gradient(90deg, #06B6D4 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+          display: 'flex',
+        }}
+      />
+
+      {/* ヘッダー */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: `${height * 0.025}px ${width * 0.04}px`,
+          borderBottom: '1px solid #164E63',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {logoUrl && (
+            <img src={logoUrl} alt="logo" style={{ height: height * 0.04, marginRight: 12 }} />
+          )}
+          <div style={{ color: '#06B6D4', fontSize: width * 0.028, fontWeight: 700, display: 'flex' }}>
+            {serviceName}
+          </div>
+        </div>
+        {/* 満足度バッジ */}
+        <div style={{ display: 'flex', alignItems: 'baseline' }}>
+          <span style={{ color: '#06B6D4', fontSize: width * 0.035, marginRight: 6, display: 'flex' }}>★</span>
+          <span style={{ color: '#06B6D4', fontSize: width * 0.08, fontWeight: 900, display: 'flex' }}>4.9</span>
+          <span style={{ color: '#FFFFFF', fontSize: width * 0.018, marginLeft: 8, display: 'flex' }}>満足度</span>
+        </div>
       </div>
 
-      {/* 中央エリア */}
-      <div style={{ display: 'flex', flex: 1, gap: width * 0.035 }}>
+      {/* メインコンテンツ */}
+      <div style={{ display: 'flex', flex: 1, padding: width * 0.04 }}>
         {/* 左側：顔写真 */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          {logoUrl && (
-            <img src={logoUrl} alt="logo" style={{ height: height * 0.035, marginBottom: 12 }} />
-          )}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '32%' }}>
           <FacePhoto
             faceUrl={faceUrl}
             ownerName={ownerName}
             size={photoSize}
             borderColor="#06B6D4"
-            borderWidth={5}
+            borderWidth={4}
           />
           {ownerName && (
-            <div style={{ color: '#FFFFFF', fontSize: width * 0.022, marginTop: 8, display: 'flex' }}>{ownerName} 様</div>
+            <div style={{ color: '#FFFFFF', fontSize: width * 0.024, marginTop: 10, display: 'flex' }}>{ownerName} 様</div>
           )}
+          <div style={{ marginTop: 6, display: 'flex' }}>
+            <Stars color="#06B6D4" size={width * 0.024} />
+          </div>
+
+          {/* 評価タグ */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: height * 0.02 }}>
+            <div
+              style={{
+                backgroundColor: '#06B6D4',
+                color: '#0F172A',
+                padding: '4px 12px',
+                borderRadius: 4,
+                fontSize: width * 0.016,
+                fontWeight: 700,
+                display: 'flex',
+              }}
+            >
+              ✓ 信頼できる
+            </div>
+            <div
+              style={{
+                backgroundColor: '#06B6D4',
+                color: '#0F172A',
+                padding: '4px 12px',
+                borderRadius: 4,
+                fontSize: width * 0.016,
+                fontWeight: 700,
+                display: 'flex',
+              }}
+            >
+              ✓ また利用したい
+            </div>
+          </div>
         </div>
 
         {/* 右側：口コミカード */}
@@ -1058,41 +1618,74 @@ export const Template009 = (props: TemplateProps) => {
           style={{
             flex: 1,
             backgroundColor: '#FFFFFF',
-            borderRadius: 14,
+            borderRadius: 16,
             padding: width * 0.035,
+            marginLeft: width * 0.03,
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <Stars color="#06B6D4" size={width * 0.024} />
-          <div style={{ color: '#06B6D4', fontSize: width * 0.032, fontWeight: 700, margin: '10px 0', display: 'flex' }}>
-            {catchCopy}
-          </div>
+          {/* キャッチコピー */}
           <div
             style={{
-              color: '#1A1A1A',
-              fontSize: width * 0.026,
-              lineHeight: 1.7,
-              flex: 1,
+              color: '#0F172A',
+              fontSize: width * 0.042,
+              fontWeight: 900,
+              lineHeight: 1.3,
+              marginBottom: height * 0.015,
               display: 'flex',
             }}
           >
-            {reviewText}
+            {catchCopy}
+          </div>
+
+          {/* ハイライトボックス */}
+          <div
+            style={{
+              backgroundColor: '#ECFEFF',
+              borderLeft: '4px solid #06B6D4',
+              padding: width * 0.025,
+              marginBottom: height * 0.015,
+              display: 'flex',
+            }}
+          >
+            <div style={{ color: '#0E7490', fontSize: width * 0.026, fontWeight: 600, lineHeight: 1.5, display: 'flex' }}>
+              {highlight}
+            </div>
+          </div>
+
+          {/* 残りの文章 */}
+          {rest && (
+            <div
+              style={{
+                color: '#475569',
+                fontSize: width * 0.022,
+                lineHeight: 1.7,
+                flex: 1,
+                display: 'flex',
+              }}
+            >
+              {rest}
+            </div>
+          )}
+
+          {/* ボトムタグ */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'auto' }}>
+            <div
+              style={{
+                backgroundColor: '#0F172A',
+                color: '#06B6D4',
+                padding: '6px 14px',
+                borderRadius: 4,
+                fontSize: width * 0.016,
+                fontWeight: 700,
+                display: 'flex',
+              }}
+            >
+              CUSTOMER VOICE
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* フッター */}
-      <div
-        style={{
-          marginTop: height * 0.02,
-          paddingTop: height * 0.018,
-          borderTop: '1px solid #164E63',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div style={{ color: '#06B6D4', fontSize: width * 0.026, fontWeight: 700, display: 'flex' }}>{serviceName}</div>
       </div>
     </div>
   );
