@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { supabase } from '@/lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -30,22 +29,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ファイル名を生成
     const parts = file.type.split('/');
     const ext = parts[1] === 'jpeg' ? 'jpg' : parts[1];
     const prefix = fileType || 'file';
-    const fileName = prefix + '-' + uuidv4() + '.' + ext;
+    const fileName = `${prefix}-${uuidv4()}.${ext}`;
+    const filePath = `${fileName}`;
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // ファイルをArrayBufferに変換
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
 
-    const uploadDir = join(process.cwd(), 'public', 'uploads');
-    const filePath = join(uploadDir, fileName);
+    // Supabase Storageにアップロード
+    const { data, error } = await supabase.storage
+      .from('uploads')
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
 
-    await writeFile(filePath, buffer);
+    if (error) {
+      console.error('Supabase upload error:', error);
+      return NextResponse.json(
+        { error: 'アップロードに失敗しました: ' + error.message },
+        { status: 500 }
+      );
+    }
 
-    const url = '/uploads/' + fileName;
+    // 公開URLを取得
+    const { data: urlData } = supabase.storage
+      .from('uploads')
+      .getPublicUrl(filePath);
 
-    return NextResponse.json({ url, fileName }, { status: 201 });
+    return NextResponse.json({
+      url: urlData.publicUrl,
+      fileName: fileName,
+    }, { status: 201 });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json({ error: 'アップロードに失敗しました' }, { status: 500 });

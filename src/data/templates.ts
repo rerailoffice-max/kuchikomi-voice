@@ -2,15 +2,41 @@ import { Template } from '@/types';
 
 export const defaultTemplates: Template[] = [
   {
+    id: 'tpl-000',
+    name: '推薦ポスター型',
+    description: '「このサービスをおすすめします！」という訴求力の高いデザイン。顔写真・ロゴを大きく表示。',
+    tags: ['おすすめ', '推薦', '訴求力'],
+    orientation: 'portrait',
+    size_presets: [
+      { label: 'Instagram (4:5)', width: 1080, height: 1350 },
+      { label: '正方形', width: 1080, height: 1080 },
+      { label: 'Instagramストーリー', width: 1080, height: 1920 },
+    ],
+    preview_image: '/images/templates/recommend-preview.png',
+    prompt_skeleton: '{{service_name}}をおすすめします: "{{review_text}}"',
+    constraints: {
+      max_heading_chars: 30,
+      max_body_chars: 150,
+      recommended_tone: '熱意を込めて推薦する口調',
+    },
+    style: {
+      backgroundColor: '#1E293B',
+      primaryColor: '#3B82F6',
+      secondaryColor: '#60A5FA',
+      fontFamily: '"Noto Sans JP", sans-serif',
+      layout: 'recommendation',
+    },
+  },
+  {
     id: 'tpl-001',
     name: '口コミカード型',
     description: '1件の口コミを大きく表示するカードデザイン。短〜中程度の口コミ文に最適です。',
     tags: ['口コミ1件', 'カード', '汎用'],
     orientation: 'portrait',
     size_presets: [
-      { label: 'A4縦', width: 2480, height: 3508 },
       { label: 'Instagram (4:5)', width: 1080, height: 1350 },
       { label: '正方形', width: 1080, height: 1080 },
+      { label: 'A4縦', width: 2480, height: 3508 },
     ],
     preview_image: '/images/templates/card-preview.png',
     prompt_skeleton: '{{service_name}}の利用者の声: "{{review_text}}" - {{reviewer_info}}',

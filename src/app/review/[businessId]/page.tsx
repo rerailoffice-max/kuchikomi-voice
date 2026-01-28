@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { defaultTemplates } from '@/data/templates';
+import { generateImageHTML, ImageGenerationParams } from '@/lib/image-generator';
+import { Business } from '@/types';
+import { toPng } from 'html-to-image';
 
 interface BusinessData {
   id: string;
@@ -12,6 +15,7 @@ interface BusinessData {
   category: string;
   logo_url: string | null;
   face_url: string | null;
+  owner_name?: string | null;
 }
 
 interface SurveyData {
@@ -149,40 +153,72 @@ export default function ReviewFlowPage() {
     setStep('generate');
 
     try {
-      // Call server API for Gemini image generation
-      const res = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          template_id: selectedTemplateId,
-          generated_copy_id: generatedCopyId,
-          business_id: business.id,
-          size_preset: selectedSize.label,
-        }),
-      });
+      // クライアントサイドでhtml-to-imageを使って画像生成
+      const imgParams: ImageGenerationParams = {
+        template: selectedTemplate,
+        business: business as Business,
+        reviewText,
+        orientation: selectedTemplate.orientation,
+        width: selectedSize.width / 4, // プレビュー用にスケールダウン
+        height: selectedSize.height / 4,
+      };
 
-      if (!res.ok) {
-        throw new Error('画像生成APIでエラーが発生しました');
-      }
+      const html = generateImageHTML(imgParams);
 
-      const data = await res.json();
+      // 一時的なコンテナを作成
+      const container = document.createElement('div');
+      container.innerHTML = html;
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.top = '-9999px';
+      document.body.appendChild(container);
 
-      if (data.generated_image_url) {
-        // Gemini generated image
-        setGeneratedImageUrl(data.generated_image_url);
+      const element = container.firstElementChild as HTMLElement;
+
+      // 画像内の外部リソースを読み込む時間を待つ
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      try {
+        const dataUrl = await toPng(element, {
+          width: imgParams.width,
+          height: imgParams.height,
+          quality: 1.0,
+          pixelRatio: 2,
+          skipAutoScale: true,
+          cacheBust: true,
+        });
+
+        setGeneratedImageUrl(dataUrl);
         setStep('download');
-      } else {
-        // No Gemini image - show error
-        throw new Error('画像の生成に失敗しました。APIキーを確認してください。');
+
+        // サーバーに保存（オプション）
+        try {
+          await fetch('/api/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              template_id: selectedTemplateId,
+              generated_copy_id: generatedCopyId,
+              business_id: business.id,
+              size_preset: selectedSize.label,
+              image_url: dataUrl,
+            }),
+          });
+        } catch {
+          // サーバー保存は失敗しても続行
+          console.log('Server save skipped');
+        }
+      } finally {
+        document.body.removeChild(container);
       }
     } catch (err) {
       console.error('Image generation error:', err);
-      alert(err instanceof Error ? err.message : '画像の生成に失敗しました。もう一度お試しください。');
+      alert('画像の生成に失敗しました。もう一度お試しください。');
       setStep('template');
     } finally {
       setIsGeneratingImage(false);
     }
-  }, [business, generatedCopyId, selectedTemplateId, selectedSizeIndex]);
+  }, [business, generatedCopyId, selectedTemplateId, selectedSizeIndex, reviewText]);
 
   const handleDownload = () => {
     if (!generatedImageUrl || !business) return;
