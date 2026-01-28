@@ -1,5 +1,7 @@
 import { ImageResponse } from '@vercel/og';
 import React from 'react';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 import {
   templateComponents,
   TemplateProps,
@@ -71,16 +73,48 @@ export interface PosterGenerationInput {
   logoUrl: string | null;
 }
 
-// フォントをfetchする関数
-async function loadFont(): Promise<ArrayBuffer> {
-  // Google Fonts から Noto Sans JP を取得
-  const fontUrl = 'https://fonts.gstatic.com/s/notosansjp/v52/-F6jfjtqLzI2JPCgQBnw7HFyzSD-AsregP8VFJEk757Y0rw_qMHVdbR2L8Y9QTJ1LwkRmR5GprQAe-T30Q.ttf';
+// フォントキャッシュ
+let fontCache: ArrayBuffer | null = null;
 
-  const response = await fetch(fontUrl);
-  if (!response.ok) {
-    throw new Error('Failed to load font');
+// フォントを読み込む関数
+async function loadFont(): Promise<ArrayBuffer> {
+  // キャッシュがあれば返す
+  if (fontCache) {
+    return fontCache;
   }
-  return response.arrayBuffer();
+
+  // 方法1: ローカルファイルから読み込み（開発/Vercel両方で動作）
+  try {
+    const fontPath = join(process.cwd(), 'public', 'fonts', 'NotoSansJP-Regular.ttf');
+    const fontData = await readFile(fontPath);
+    fontCache = fontData.buffer.slice(fontData.byteOffset, fontData.byteOffset + fontData.byteLength);
+    console.log('Font loaded from local file');
+    return fontCache;
+  } catch (localError) {
+    console.warn('Failed to load local font:', localError);
+  }
+
+  // 方法2: fetch経由でCDNから取得（Vercel Edgeでローカルファイルが使えない場合）
+  const fontUrls = [
+    // 信頼性の高いCDNソース
+    'https://cdn.jsdelivr.net/gh/nicolo-ribaudo/nicolo-ribaudo.github.io@master/files/noto-sans-jp.otf',
+    'https://raw.githubusercontent.com/nicolo-ribaudo/nicolo-ribaudo.github.io/master/files/noto-sans-jp.otf',
+  ];
+
+  for (const fontUrl of fontUrls) {
+    try {
+      const response = await fetch(fontUrl);
+      if (response.ok) {
+        fontCache = await response.arrayBuffer();
+        console.log(`Font loaded from CDN: ${fontUrl}`);
+        return fontCache;
+      }
+    } catch (e) {
+      console.warn(`Failed to load font from ${fontUrl}:`, e);
+    }
+  }
+
+  throw new Error('Failed to load font from all sources');
 }
 
 // 画像を生成する関数

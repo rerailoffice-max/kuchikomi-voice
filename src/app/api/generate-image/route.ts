@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
       };
     } catch (error) {
       console.error('Satori image generation error:', error);
-      return NextResponse.json({ error: '画像生成に失敗しました' }, { status: 500 });
+      const errorMessage = error instanceof Error ? error.message : '画像生成に失敗しました';
+      return NextResponse.json({ error: errorMessage, details: String(error) }, { status: 500 });
     }
 
     const image = storeCreateGeneratedImage({
@@ -146,7 +147,8 @@ export async function POST(request: NextRequest) {
     };
   } catch (error) {
     console.error('Satori image generation error:', error);
-    return NextResponse.json({ error: '画像生成に失敗しました' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : '画像生成に失敗しました';
+    return NextResponse.json({ error: errorMessage, details: String(error) }, { status: 500 });
   }
 
   const { data: image, error: dbError } = await supabase
