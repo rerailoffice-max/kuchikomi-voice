@@ -180,7 +180,7 @@ ${designInstruction}
  */
 export async function generateImageWithGemini(input: ImageGenerationInput): Promise<string> {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash-exp',
+    model: 'gemini-2.5-flash-image',
     generationConfig: {
       // @ts-expect-error - responseModalities is supported but not in types yet
       responseModalities: ['TEXT', 'IMAGE'],
@@ -212,36 +212,6 @@ export async function generateImageWithGemini(input: ImageGenerationInput): Prom
     throw new Error('画像生成に失敗しました: 画像データが見つかりません');
   } catch (error) {
     console.error('Gemini image generation error:', error);
-
-    // フォールバック: gemini-2.0-flash-exp が失敗した場合、別のモデルを試行
-    try {
-      const fallbackModel = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash-exp',
-        generationConfig: {
-          // @ts-expect-error - responseModalities is supported but not in types yet
-          responseModalities: ['TEXT', 'IMAGE'],
-        },
-      });
-
-      const result = await fallbackModel.generateContent([{ text: prompt }]);
-      const response = result.response;
-      const candidates = response.candidates;
-
-      if (candidates) {
-        for (const candidate of candidates) {
-          if (candidate.content && candidate.content.parts) {
-            for (const part of candidate.content.parts) {
-              if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
-                return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-              }
-            }
-          }
-        }
-      }
-    } catch (fallbackError) {
-      console.error('Fallback image generation also failed:', fallbackError);
-    }
-
     throw error;
   }
 }
