@@ -3,9 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { defaultTemplates } from '@/data/templates';
-import { generateImageHTML, ImageGenerationParams } from '@/lib/image-generator';
-import { Business } from '@/types';
-import { toPng } from 'html-to-image';
 
 interface BusinessData {
   id: string;
@@ -153,72 +150,39 @@ export default function ReviewFlowPage() {
     setStep('generate');
 
     try {
-      // クライアントサイドでhtml-to-imageを使って画像生成
-      const imgParams: ImageGenerationParams = {
-        template: selectedTemplate,
-        business: business as Business,
-        reviewText,
-        orientation: selectedTemplate.orientation,
-        width: selectedSize.width / 4, // プレビュー用にスケールダウン
-        height: selectedSize.height / 4,
-      };
+      // サーバーサイドでGemini Imagenを使って画像生成
+      const res = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          template_id: selectedTemplateId,
+          generated_copy_id: generatedCopyId,
+          business_id: business.id,
+          size_preset: selectedSize.label,
+        }),
+      });
 
-      const html = generateImageHTML(imgParams);
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || '画像生成に失敗しました');
+      }
 
-      // 一時的なコンテナを作成
-      const container = document.createElement('div');
-      container.innerHTML = html;
-      container.style.position = 'absolute';
-      container.style.left = '-9999px';
-      container.style.top = '-9999px';
-      document.body.appendChild(container);
+      const data = await res.json();
 
-      const element = container.firstElementChild as HTMLElement;
-
-      // 画像内の外部リソースを読み込む時間を待つ
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      try {
-        const dataUrl = await toPng(element, {
-          width: imgParams.width,
-          height: imgParams.height,
-          quality: 1.0,
-          pixelRatio: 2,
-          skipAutoScale: true,
-          cacheBust: true,
-        });
-
-        setGeneratedImageUrl(dataUrl);
+      if (data.generated_image_url) {
+        setGeneratedImageUrl(data.generated_image_url);
         setStep('download');
-
-        // サーバーに保存（オプション）
-        try {
-          await fetch('/api/generate-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              template_id: selectedTemplateId,
-              generated_copy_id: generatedCopyId,
-              business_id: business.id,
-              size_preset: selectedSize.label,
-              image_url: dataUrl,
-            }),
-          });
-        } catch {
-          // サーバー保存は失敗しても続行
-          console.log('Server save skipped');
-        }
-      } finally {
-        document.body.removeChild(container);
+      } else {
+        throw new Error('画像が生成されませんでした。Gemini API キーを確認してください。');
       }
     } catch (err) {
       console.error('Image generation error:', err);
-      alert('画像の生成に失敗しました。もう一度お試しください。');
+      alert(err instanceof Error ? err.message : '画像の生成に失敗しました。もう一度お試しください。');
       setStep('template');
     } finally {
       setIsGeneratingImage(false);
     }
-  }, [business, generatedCopyId, selectedTemplateId, selectedSizeIndex, reviewText]);
+  }, [business, generatedCopyId, selectedTemplateId, selectedSizeIndex]);
 
   const handleDownload = () => {
     if (!generatedImageUrl || !business) return;
@@ -495,7 +459,7 @@ export default function ReviewFlowPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-2">テンプレートを選択</h2>
           <p className="text-sm text-gray-500 mb-6">口コミ画像のデザインテンプレートを選んでください</p>
 
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8 max-h-[500px] overflow-y-auto pr-1">
             {defaultTemplates.map((template) => {
               const isSelected = selectedTemplateId === template.id;
               return (
@@ -512,23 +476,23 @@ export default function ReviewFlowPage() {
                   }`}
                 >
                   <div
-                    className="aspect-[3/4] p-4 flex items-center justify-center"
+                    className="aspect-[4/3] p-3 flex items-center justify-center"
                     style={{ background: template.style.backgroundColor }}
                   >
                     <div className="text-center w-full">
-                      <div className="text-[10px] font-bold opacity-40 mb-2" style={{ color: template.style.primaryColor }}>
+                      <div className="text-[9px] font-bold opacity-40 mb-1.5" style={{ color: template.style.primaryColor }}>
                         {template.style.layout.toUpperCase()}
                       </div>
-                      <div className="max-w-[80px] mx-auto space-y-1.5">
-                        <div className="h-1.5 rounded-full" style={{ background: template.style.primaryColor, opacity: 0.25 }} />
-                        <div className="h-5 rounded-md" style={{ background: template.style.secondaryColor }} />
-                        <div className="h-1.5 rounded-full w-3/4 mx-auto" style={{ background: template.style.primaryColor, opacity: 0.15 }} />
+                      <div className="max-w-[60px] mx-auto space-y-1">
+                        <div className="h-1 rounded-full" style={{ background: template.style.primaryColor, opacity: 0.25 }} />
+                        <div className="h-4 rounded-md" style={{ background: template.style.secondaryColor }} />
+                        <div className="h-1 rounded-full w-3/4 mx-auto" style={{ background: template.style.primaryColor, opacity: 0.15 }} />
                       </div>
                     </div>
                   </div>
-                  <div className="p-3 bg-white">
-                    <div className="font-semibold text-xs text-gray-900">{template.name}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">{template.tags.join(' / ')}</div>
+                  <div className="p-2.5 bg-white">
+                    <div className="font-semibold text-[11px] text-gray-900 leading-tight">{template.name}</div>
+                    <div className="text-[9px] text-gray-500 mt-0.5 truncate">{template.tags.join(' / ')}</div>
                   </div>
                 </button>
               );

@@ -9,36 +9,7 @@ import {
   createGeneratedImage as storeCreateGeneratedImage,
 } from '@/lib/store';
 
-/**
- * Generate a poster image using Gemini or return template data for client-side rendering
- */
-async function generateImage(
-  serviceName: string,
-  description: string,
-  whatYouDo: string,
-  ownerName: string | null,
-  reviewText: string,
-  templateStyle: string,
-  width: number,
-  height: number,
-): Promise<string> {
-  if (isGeminiImageConfigured()) {
-    return await generateImageWithGemini({
-      serviceName,
-      description,
-      whatYouDo,
-      ownerName,
-      reviewText,
-      templateStyle,
-      width,
-      height,
-    });
-  }
-  // No Gemini API key - return empty string (client will fall back to html-to-image)
-  return '';
-}
-
-// POST /api/generate-image - Generate review image
+// POST /api/generate-image - Generate review image using Gemini
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { template_id, generated_copy_id, business_id, size_preset } = body;
@@ -69,54 +40,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '口コミ文が見つかりません' }, { status: 404 });
     }
 
-    try {
-      const imageDataUrl = await generateImage(
-        business.service_name,
-        business.description,
-        business.what_you_do,
-        business.owner_name || null,
-        copy.review_text,
-        template.name,
-        selectedPreset.width,
-        selectedPreset.height,
-      );
-
-      const image = storeCreateGeneratedImage({
-        business_id,
-        template_id,
-        generated_copy_id,
-        image_url: imageDataUrl,
-        is_public: false,
-      });
-
-      return NextResponse.json({
-        image,
-        template,
-        business,
-        copy,
-        size: selectedPreset,
-        generated_image_url: imageDataUrl || null,
-      }, { status: 201 });
-    } catch (error) {
-      console.error('Image generation error:', error);
-      // Fallback: return data without generated image
-      const image = storeCreateGeneratedImage({
-        business_id,
-        template_id,
-        generated_copy_id,
-        image_url: '',
-        is_public: false,
-      });
-
-      return NextResponse.json({
-        image,
-        template,
-        business,
-        copy,
-        size: selectedPreset,
-        generated_image_url: null,
-      }, { status: 201 });
+    // Gemini画像生成を試行
+    let imageDataUrl = '';
+    if (isGeminiImageConfigured()) {
+      try {
+        imageDataUrl = await generateImageWithGemini({
+          serviceName: business.service_name,
+          description: business.description,
+          whatYouDo: business.what_you_do,
+          ownerName: business.owner_name || null,
+          reviewText: copy.review_text,
+          templateStyle: template.name,
+          templateId: template.id,
+          width: selectedPreset.width,
+          height: selectedPreset.height,
+          faceUrl: business.face_url,
+          logoUrl: business.logo_url,
+        });
+      } catch (error) {
+        console.error('Image generation error:', error);
+      }
     }
+
+    const image = storeCreateGeneratedImage({
+      business_id,
+      template_id,
+      generated_copy_id,
+      image_url: imageDataUrl,
+      is_public: false,
+    });
+
+    return NextResponse.json({
+      image,
+      template,
+      business,
+      copy,
+      size: selectedPreset,
+      generated_image_url: imageDataUrl || null,
+    }, { status: 201 });
   }
 
   // Supabase path
@@ -141,19 +102,24 @@ export async function POST(request: NextRequest) {
   }
 
   let imageDataUrl = '';
-  try {
-    imageDataUrl = await generateImage(
-      business.service_name,
-      business.description,
-      business.what_you_do,
-      business.owner_name || null,
-      copy.review_text,
-      template.name,
-      selectedPreset.width,
-      selectedPreset.height,
-    );
-  } catch (error) {
-    console.error('Image generation error:', error);
+  if (isGeminiImageConfigured()) {
+    try {
+      imageDataUrl = await generateImageWithGemini({
+        serviceName: business.service_name,
+        description: business.description,
+        whatYouDo: business.what_you_do,
+        ownerName: business.owner_name || null,
+        reviewText: copy.review_text,
+        templateStyle: template.name,
+        templateId: template.id,
+        width: selectedPreset.width,
+        height: selectedPreset.height,
+        faceUrl: business.face_url,
+        logoUrl: business.logo_url,
+      });
+    } catch (error) {
+      console.error('Image generation error:', error);
+    }
   }
 
   const { data: image, error: dbError } = await supabase
