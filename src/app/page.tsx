@@ -134,10 +134,16 @@ export default function Home() {
                   style={{ background: template.style.backgroundColor }}>
                   <div className="text-center">
                     <div className="text-xs font-bold mb-2 opacity-60" style={{ color: template.style.primaryColor }}>
-                      {template.style.layout === 'card' && 'CARD'}
-                      {template.style.layout === 'headline' && 'HEADLINE'}
-                      {template.style.layout === 'multi' && 'MULTI'}
-                      {template.style.layout === 'minimal' && 'MINIMAL'}
+                      {template.style.layout === 'recommendation' && '推薦'}
+                      {template.style.layout === 'card' && 'カード'}
+                      {template.style.layout === 'watercolor' && '水彩'}
+                      {template.style.layout === 'benefit' && 'ベネフィット'}
+                      {template.style.layout === 'simple' && 'シンプル'}
+                      {template.style.layout === 'premium_dark' && 'プレミアム'}
+                      {template.style.layout === 'green' && 'グリーン'}
+                      {template.style.layout === 'blue_business' && 'ビジネス'}
+                      {template.style.layout === 'pink_pop' && 'ポップ'}
+                      {template.style.layout === 'purple_elegant' && 'エレガント'}
                     </div>
                     <div className="w-full max-w-[120px] mx-auto space-y-2">
                       <div className="h-2 rounded-full" style={{ background: template.style.primaryColor, opacity: 0.3 }} />

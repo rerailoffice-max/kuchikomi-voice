@@ -85,7 +85,7 @@ export interface TemplateStyle {
   primaryColor: string;
   secondaryColor: string;
   fontFamily: string;
-  layout: 'card' | 'headline' | 'multi' | 'minimal' | 'recommendation' | 'before_after' | 'badge' | 'magazine' | 'sns_casual' | 'numbers';
+  layout: 'recommendation' | 'card' | 'watercolor' | 'benefit' | 'simple' | 'premium_dark' | 'green' | 'blue_business' | 'pink_pop' | 'purple_elegant';
 }
 
 export interface GeneratedImage {
