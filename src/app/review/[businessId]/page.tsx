@@ -57,6 +57,8 @@ export default function ReviewFlowPage() {
   // Image generation
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [promptDebug, setPromptDebug] = useState<Record<string, unknown> | null>(null);
+  const [showPromptDebug, setShowPromptDebug] = useState(false);
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch business data
@@ -171,6 +173,9 @@ export default function ReviewFlowPage() {
 
       if (data.generated_image_url) {
         setGeneratedImageUrl(data.generated_image_url);
+        if (data.prompt_debug) {
+          setPromptDebug(data.prompt_debug);
+        }
         setStep('download');
       } else {
         throw new Error('画像が生成されませんでした。Gemini API キーを確認してください。');
@@ -609,6 +614,7 @@ export default function ReviewFlowPage() {
             <button
               onClick={() => {
                 setGeneratedImageUrl(null);
+                setPromptDebug(null);
                 setStep('template');
               }}
               className="btn-secondary flex-1"
@@ -619,6 +625,42 @@ export default function ReviewFlowPage() {
               別のテンプレートで再生成
             </button>
           </div>
+
+          {/* Prompt Debug JSON */}
+          {promptDebug && (
+            <div className="mt-6 border-t border-gray-100 pt-6">
+              <button
+                onClick={() => setShowPromptDebug(!showPromptDebug)}
+                className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <svg className={`w-4 h-4 transition-transform ${showPromptDebug ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                生成プロンプト（JSON）を表示
+              </button>
+              {showPromptDebug && (
+                <div className="mt-3">
+                  <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                    <pre className="text-xs text-green-400 whitespace-pre-wrap break-words font-mono">
+                      {JSON.stringify(promptDebug, null, 2)}
+                    </pre>
+                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(JSON.stringify(promptDebug, null, 2));
+                      alert('プロンプトJSONをクリップボードにコピーしました');
+                    }}
+                    className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                    JSONをコピー
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

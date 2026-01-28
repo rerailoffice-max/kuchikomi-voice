@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { defaultTemplates } from '@/data/templates';
-import { generateImageWithGemini, isGeminiImageConfigured } from '@/lib/ai-image';
+import { generateImageWithGemini, isGeminiImageConfigured, PromptDebugOutput } from '@/lib/ai-image';
 import {
   isSupabaseConfigured,
   getBusiness as storeGetBusiness,
@@ -40,11 +40,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '口コミ文が見つかりません' }, { status: 404 });
     }
 
-    // Gemini画像生成を試行
+    // Gemini画像生成を試行（顔写真・ロゴの実画像を渡す）
     let imageDataUrl = '';
+    let promptDebug: PromptDebugOutput | null = null;
     if (isGeminiImageConfigured()) {
       try {
-        imageDataUrl = await generateImageWithGemini({
+        const result = await generateImageWithGemini({
           serviceName: business.service_name,
           description: business.description,
           whatYouDo: business.what_you_do,
@@ -57,6 +58,8 @@ export async function POST(request: NextRequest) {
           faceUrl: business.face_url,
           logoUrl: business.logo_url,
         });
+        imageDataUrl = result.imageDataUrl;
+        promptDebug = result.promptDebug;
       } catch (error) {
         console.error('Image generation error:', error);
       }
@@ -77,6 +80,7 @@ export async function POST(request: NextRequest) {
       copy,
       size: selectedPreset,
       generated_image_url: imageDataUrl || null,
+      prompt_debug: promptDebug,
     }, { status: 201 });
   }
 
@@ -102,9 +106,10 @@ export async function POST(request: NextRequest) {
   }
 
   let imageDataUrl = '';
+  let promptDebug: PromptDebugOutput | null = null;
   if (isGeminiImageConfigured()) {
     try {
-      imageDataUrl = await generateImageWithGemini({
+      const result = await generateImageWithGemini({
         serviceName: business.service_name,
         description: business.description,
         whatYouDo: business.what_you_do,
@@ -117,6 +122,8 @@ export async function POST(request: NextRequest) {
         faceUrl: business.face_url,
         logoUrl: business.logo_url,
       });
+      imageDataUrl = result.imageDataUrl;
+      promptDebug = result.promptDebug;
     } catch (error) {
       console.error('Image generation error:', error);
     }
@@ -145,5 +152,6 @@ export async function POST(request: NextRequest) {
     copy,
     size: selectedPreset,
     generated_image_url: imageDataUrl || null,
+    prompt_debug: promptDebug,
   }, { status: 201 });
 }

@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, Part } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -18,6 +18,48 @@ interface ImageGenerationInput {
   height: number;
   faceUrl?: string | null;
   logoUrl?: string | null;
+}
+
+/**
+ * 画像URLからBase64データを取得する
+ * Data URLの場合はそのまま抽出、HTTP URLの場合はfetchして変換
+ */
+async function fetchImageAsBase64(url: string): Promise<{ data: string; mimeType: string } | null> {
+  try {
+    if (url.startsWith('data:')) {
+      // Data URL: data:image/jpeg;base64,/9j/4AAQ...
+      const match = url.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+      if (match) {
+        return { mimeType: match[1], data: match[2] };
+      }
+      return null;
+    }
+
+    // HTTP(S) URL: Supabase Storage等からfetch
+    const response = await fetch(url);
+    if (!response.ok) return null;
+
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = buffer.toString('base64');
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+
+    return { mimeType: contentType, data: base64 };
+  } catch (error) {
+    console.error('Failed to fetch image:', error);
+    return null;
+  }
+}
+
+export interface PromptDebugOutput {
+  textPrompt: string;
+  hasUserFaceImage: boolean;
+  hasUserLogoImage: boolean;
+  templateId: string;
+  templateName: string;
+  orientation: string;
+  width: number;
+  height: number;
 }
 
 function buildPromptForTemplate(input: ImageGenerationInput): string {
@@ -348,10 +390,10 @@ ${input.ownerName ? `事業者名：${input.ownerName}` : ''}
 「${input.reviewText}」
 
 【事業者の顔写真】
-${input.faceUrl ? '顔写真あり。画像内に事業者の顔写真エリアを必ず目立つ位置に配置。プレースホルダーとして人物のシルエットアイコンを配置。' : '顔写真なし。事業者名のイニシャルを丸型アイコンで表示。'}
+${input.faceUrl ? '顔写真が添付画像として提供されています。この顔写真をそのまま画像内の顔写真エリアに配置してください。丸型または正方形にクロップして、指定されたレイアウト位置に目立つように配置すること。顔写真は加工せず、そのまま使用してください。' : '顔写真なし。事業者名のイニシャルを丸型アイコンで表示。'}
 
 【サービスロゴ】
-${input.logoUrl ? 'ロゴあり。画像内にロゴエリアを必ず配置。プレースホルダーとして「LOGO」テキストまたはサービス名の頭文字を配置。' : 'ロゴなし。サービス名のテキストで代替。'}
+${input.logoUrl ? 'サービスロゴが添付画像として提供されています。このロゴをそのまま画像内のロゴエリアに配置してください。ロゴのアスペクト比を維持し、指定されたレイアウト位置に適切なサイズで配置すること。' : 'ロゴなし。サービス名のテキストで代替。'}
 
 ■デザイン指示
 ${designInstruction}
@@ -384,8 +426,12 @@ ${designInstruction}
 
 /**
  * Generate a review poster image using Gemini 3 Pro Image Preview
+ * 顔写真・ロゴ画像が提供されている場合、実画像をGemini APIに渡して画像内に合成する
  */
-export async function generateImageWithGemini(input: ImageGenerationInput): Promise<string> {
+export async function generateImageWithGemini(input: ImageGenerationInput): Promise<{
+  imageDataUrl: string;
+  promptDebug: PromptDebugOutput;
+}> {
   const model = genAI.getGenerativeModel({
     model: 'gemini-3-pro-image-preview',
     generationConfig: {
@@ -395,9 +441,60 @@ export async function generateImageWithGemini(input: ImageGenerationInput): Prom
   });
 
   const prompt = buildPromptForTemplate(input);
+  const orientation = input.width > input.height ? '横長（landscape）' : '縦長（portrait）';
+
+  // マルチモーダル入力パーツを構築
+  const parts: Part[] = [];
+
+  // 顔写真をBase64で取得してパーツに追加
+  let hasFaceImage = false;
+  if (input.faceUrl) {
+    const faceData = await fetchImageAsBase64(input.faceUrl);
+    if (faceData) {
+      parts.push({ text: '【添付画像1: 事業者の顔写真】以下の画像を顔写真エリアにそのまま配置してください：' });
+      parts.push({
+        inlineData: {
+          mimeType: faceData.mimeType,
+          data: faceData.data,
+        },
+      });
+      hasFaceImage = true;
+    }
+  }
+
+  // ロゴ画像をBase64で取得してパーツに追加
+  let hasLogoImage = false;
+  if (input.logoUrl) {
+    const logoData = await fetchImageAsBase64(input.logoUrl);
+    if (logoData) {
+      parts.push({ text: '【添付画像2: サービスロゴ】以下の画像をロゴエリアにそのまま配置してください：' });
+      parts.push({
+        inlineData: {
+          mimeType: logoData.mimeType,
+          data: logoData.data,
+        },
+      });
+      hasLogoImage = true;
+    }
+  }
+
+  // メインプロンプトを追加
+  parts.push({ text: prompt });
+
+  // デバッグ用プロンプト情報
+  const promptDebug: PromptDebugOutput = {
+    textPrompt: prompt,
+    hasUserFaceImage: hasFaceImage,
+    hasUserLogoImage: hasLogoImage,
+    templateId: input.templateId,
+    templateName: input.templateStyle,
+    orientation,
+    width: input.width,
+    height: input.height,
+  };
 
   try {
-    const result = await model.generateContent([{ text: prompt }]);
+    const result = await model.generateContent(parts);
     const response = result.response;
     const candidates = response.candidates;
 
@@ -409,7 +506,10 @@ export async function generateImageWithGemini(input: ImageGenerationInput): Prom
       if (candidate.content && candidate.content.parts) {
         for (const part of candidate.content.parts) {
           if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
-            return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+            return {
+              imageDataUrl: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`,
+              promptDebug,
+            };
           }
         }
       }
