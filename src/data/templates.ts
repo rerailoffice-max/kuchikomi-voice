@@ -1,0 +1,105 @@
+import { Template } from '@/types';
+
+export const defaultTemplates: Template[] = [
+  {
+    id: 'tpl-001',
+    name: '口コミカード型',
+    description: '1件の口コミを大きく表示するカードデザイン。短〜中程度の口コミ文に最適です。',
+    tags: ['口コミ1件', 'カード', '汎用'],
+    orientation: 'portrait',
+    size_presets: [
+      { label: 'A4縦', width: 2480, height: 3508 },
+      { label: 'Instagram (4:5)', width: 1080, height: 1350 },
+      { label: '正方形', width: 1080, height: 1080 },
+    ],
+    preview_image: '/images/templates/card-preview.png',
+    prompt_skeleton: '{{service_name}}の利用者の声: "{{review_text}}" - {{reviewer_info}}',
+    constraints: {
+      max_heading_chars: 24,
+      max_body_chars: 120,
+      recommended_tone: '親しみやすく誠実な口調',
+    },
+    style: {
+      backgroundColor: '#FFFFFF',
+      primaryColor: '#2563EB',
+      secondaryColor: '#DBEAFE',
+      fontFamily: '"Noto Sans JP", sans-serif',
+      layout: 'card',
+    },
+  },
+  {
+    id: 'tpl-002',
+    name: '大見出しポスター型',
+    description: '短いキャッチコピーと口コミを大きく見せるポスタースタイル。インパクト重視。',
+    tags: ['口コミ1件', 'ポスター', 'インパクト'],
+    orientation: 'portrait',
+    size_presets: [
+      { label: 'A4縦', width: 2480, height: 3508 },
+      { label: 'Instagram (4:5)', width: 1080, height: 1350 },
+    ],
+    preview_image: '/images/templates/headline-preview.png',
+    prompt_skeleton: '{{headline}}: "{{review_text}}" - {{service_name}}',
+    constraints: {
+      max_heading_chars: 16,
+      max_body_chars: 80,
+      recommended_tone: '力強く簡潔',
+    },
+    style: {
+      backgroundColor: '#1E293B',
+      primaryColor: '#F59E0B',
+      secondaryColor: '#FEF3C7',
+      fontFamily: '"Noto Sans JP", sans-serif',
+      layout: 'headline',
+    },
+  },
+  {
+    id: 'tpl-003',
+    name: '口コミまとめ型',
+    description: '複数の口コミを一覧表示するレイアウト。信頼感を高めたい場合に。',
+    tags: ['口コミ3件', 'まとめ', '信頼'],
+    orientation: 'portrait',
+    size_presets: [
+      { label: 'A4縦', width: 2480, height: 3508 },
+      { label: 'B4縦', width: 2894, height: 4093 },
+    ],
+    preview_image: '/images/templates/multi-preview.png',
+    prompt_skeleton: '{{service_name}}のお客様の声: {{reviews}}',
+    constraints: {
+      max_heading_chars: 20,
+      max_body_chars: 100,
+      recommended_tone: '信頼感のある丁寧な口調',
+    },
+    style: {
+      backgroundColor: '#F0FDF4',
+      primaryColor: '#16A34A',
+      secondaryColor: '#DCFCE7',
+      fontFamily: '"Noto Sans JP", sans-serif',
+      layout: 'multi',
+    },
+  },
+  {
+    id: 'tpl-004',
+    name: 'シンプルモダン型',
+    description: 'ミニマルで洗練されたデザイン。美容・サロン系におすすめ。',
+    tags: ['口コミ1件', 'モダン', 'サロン向け'],
+    orientation: 'landscape',
+    size_presets: [
+      { label: 'A4横', width: 3508, height: 2480 },
+      { label: 'Twitter (16:9)', width: 1200, height: 675 },
+    ],
+    preview_image: '/images/templates/minimal-preview.png',
+    prompt_skeleton: '"{{review_text}}" — {{service_name}}',
+    constraints: {
+      max_heading_chars: 20,
+      max_body_chars: 100,
+      recommended_tone: '上品でスタイリッシュ',
+    },
+    style: {
+      backgroundColor: '#FAFAF9',
+      primaryColor: '#A16207',
+      secondaryColor: '#FEF9C3',
+      fontFamily: '"Noto Sans JP", sans-serif',
+      layout: 'minimal',
+    },
+  },
+];

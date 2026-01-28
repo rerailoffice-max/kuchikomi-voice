@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 利用者の声 - 口コミ収集＆画像生成アプリ
 
-## Getting Started
+事業者がお客様の声を収集し、AIで口コミ文を生成して、SNS投稿用の画像を自動作成できるアプリケーションです。
 
-First, run the development server:
+## 機能
+
+- 事業者登録（運営者情報、顔写真、ロゴ画像のアップロード対応）
+- カスタマイズ可能なアンケート設定
+- AI による口コミ文の自動生成
+- テンプレートを使った口コミ画像の生成
+- 生成した画像のギャラリー表示
+
+## セットアップ
+
+### 1. 依存関係のインストール
+
+```bash
+npm install
+```
+
+### 2. 環境変数の設定
+
+`.env.local.example` をコピーして `.env.local` を作成し、必要な情報を入力してください。
+
+```bash
+cp .env.local.example .env.local
+```
+
+`.env.local` の内容:
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# AI Review Generation
+OPENAI_API_KEY=your-openai-key
+
+# Nano Banana Pro
+NANO_BANANA_PRO_API_KEY=your-nano-banana-pro-key
+NANO_BANANA_PRO_API_URL=https://api.nanobananapro.com
+```
+
+### 3. Supabase のセットアップ
+
+1. [Supabase](https://supabase.com) でプロジェクトを作成
+2. SQL Editor で `supabase-schema.sql` を実行してテーブルを作成
+3. Storage > Buckets で `uploads` バケットを作成（public設定）
+
+```sql
+INSERT INTO storage.buckets (id, name, public) VALUES ('uploads', 'uploads', true);
+```
+
+4. 既存のテーブルに `owner_name` カラムを追加する場合:
+
+```sql
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS owner_name TEXT;
+```
+
+### 4. 開発サーバーの起動
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## プロジェクト構成
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── api/              # API エンドポイント
+│   │   ├── businesses/   # 事業者API
+│   │   ├── upload/       # 画像アップロードAPI
+│   │   └── ...
+│   ├── business/         # 事業者登録・管理画面
+│   ├── review/           # 口コミ投稿フロー
+│   ├── gallery/          # ギャラリー表示
+│   └── templates/        # テンプレート管理
+├── components/           # 共通コンポーネント
+├── lib/                  # ユーティリティ・設定
+├── types/                # TypeScript 型定義
+└── data/                 # テンプレートデータ
+```
 
-## Learn More
+## 技術スタック
 
-To learn more about Next.js, take a look at the following resources:
+- **フレームワーク**: Next.js 14 (App Router)
+- **言語**: TypeScript
+- **スタイリング**: Tailwind CSS
+- **データベース**: Supabase (PostgreSQL)
+- **ストレージ**: Supabase Storage
+- **AI**: OpenAI API / Nano Banana Pro
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ライセンス
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+MIT
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
