@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { defaultTemplates } from '@/data/templates';
-import { generateImageWithGemini, isGeminiImageConfigured, PromptDebugOutput } from '@/lib/ai-image';
+import { generatePosterImageAsDataUrl, generateCatchCopy } from '@/lib/generate-poster';
 import {
   isSupabaseConfigured,
   getBusiness as storeGetBusiness,
@@ -9,7 +9,16 @@ import {
   createGeneratedImage as storeCreateGeneratedImage,
 } from '@/lib/store';
 
-// POST /api/generate-image - Generate review image using Gemini
+export interface PosterDebugOutput {
+  templateId: string;
+  templateName: string;
+  width: number;
+  height: number;
+  catchCopy: string;
+  method: 'satori';
+}
+
+// POST /api/generate-image - Generate review image using Satori (@vercel/og)
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { template_id, generated_copy_id, business_id, size_preset } = body;
@@ -40,29 +49,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '口コミ文が見つかりません' }, { status: 404 });
     }
 
-    // Gemini画像生成を試行（顔写真・ロゴの実画像を渡す）
+    // Satori (HTML→PNG) で画像生成
     let imageDataUrl = '';
-    let promptDebug: PromptDebugOutput | null = null;
-    if (isGeminiImageConfigured()) {
-      try {
-        const result = await generateImageWithGemini({
-          serviceName: business.service_name,
-          description: business.description,
-          whatYouDo: business.what_you_do,
-          ownerName: business.owner_name || null,
-          reviewText: copy.review_text,
-          templateStyle: template.name,
-          templateId: template.id,
-          width: selectedPreset.width,
-          height: selectedPreset.height,
-          faceUrl: business.face_url,
-          logoUrl: business.logo_url,
-        });
-        imageDataUrl = result.imageDataUrl;
-        promptDebug = result.promptDebug;
-      } catch (error) {
-        console.error('Image generation error:', error);
-      }
+    let posterDebug: PosterDebugOutput | null = null;
+
+    try {
+      imageDataUrl = await generatePosterImageAsDataUrl({
+        serviceName: business.service_name,
+        description: business.description,
+        ownerName: business.owner_name || null,
+        reviewText: copy.review_text,
+        templateId: template.id,
+        width: selectedPreset.width,
+        height: selectedPreset.height,
+        faceUrl: business.face_url || null,
+        logoUrl: business.logo_url || null,
+      });
+
+      posterDebug = {
+        templateId: template.id,
+        templateName: template.name,
+        width: selectedPreset.width,
+        height: selectedPreset.height,
+        catchCopy: generateCatchCopy(copy.review_text),
+        method: 'satori',
+      };
+    } catch (error) {
+      console.error('Satori image generation error:', error);
+      return NextResponse.json({ error: '画像生成に失敗しました' }, { status: 500 });
     }
 
     const image = storeCreateGeneratedImage({
@@ -80,7 +94,7 @@ export async function POST(request: NextRequest) {
       copy,
       size: selectedPreset,
       generated_image_url: imageDataUrl || null,
-      prompt_debug: promptDebug,
+      prompt_debug: posterDebug,
     }, { status: 201 });
   }
 
@@ -105,28 +119,34 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '口コミ文が見つかりません' }, { status: 404 });
   }
 
+  // Satori (HTML→PNG) で画像生成
   let imageDataUrl = '';
-  let promptDebug: PromptDebugOutput | null = null;
-  if (isGeminiImageConfigured()) {
-    try {
-      const result = await generateImageWithGemini({
-        serviceName: business.service_name,
-        description: business.description,
-        whatYouDo: business.what_you_do,
-        ownerName: business.owner_name || null,
-        reviewText: copy.review_text,
-        templateStyle: template.name,
-        templateId: template.id,
-        width: selectedPreset.width,
-        height: selectedPreset.height,
-        faceUrl: business.face_url,
-        logoUrl: business.logo_url,
-      });
-      imageDataUrl = result.imageDataUrl;
-      promptDebug = result.promptDebug;
-    } catch (error) {
-      console.error('Image generation error:', error);
-    }
+  let posterDebug: PosterDebugOutput | null = null;
+
+  try {
+    imageDataUrl = await generatePosterImageAsDataUrl({
+      serviceName: business.service_name,
+      description: business.description,
+      ownerName: business.owner_name || null,
+      reviewText: copy.review_text,
+      templateId: template.id,
+      width: selectedPreset.width,
+      height: selectedPreset.height,
+      faceUrl: business.face_url || null,
+      logoUrl: business.logo_url || null,
+    });
+
+    posterDebug = {
+      templateId: template.id,
+      templateName: template.name,
+      width: selectedPreset.width,
+      height: selectedPreset.height,
+      catchCopy: generateCatchCopy(copy.review_text),
+      method: 'satori',
+    };
+  } catch (error) {
+    console.error('Satori image generation error:', error);
+    return NextResponse.json({ error: '画像生成に失敗しました' }, { status: 500 });
   }
 
   const { data: image, error: dbError } = await supabase
@@ -152,6 +172,6 @@ export async function POST(request: NextRequest) {
     copy,
     size: selectedPreset,
     generated_image_url: imageDataUrl || null,
-    prompt_debug: promptDebug,
+    prompt_debug: posterDebug,
   }, { status: 201 });
 }
