@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 
 interface QuestionDraft {
@@ -250,9 +251,9 @@ export default function BusinessRegisterPage() {
             <a href={adminUrl} className="btn-primary flex-1">
               管理画面へ
             </a>
-            <a href="/" className="btn-secondary flex-1">
+            <Link href="/" className="btn-secondary flex-1">
               ホームへ戻る
-            </a>
+            </Link>
           </div>
         </div>
       </div>

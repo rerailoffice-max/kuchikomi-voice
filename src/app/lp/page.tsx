@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, MessageSquareQuote, Image, Zap, CheckCircle2, ArrowRight, Star } from 'lucide-react';
+import { Sparkles, MessageSquareQuote, Image as ImageIcon, Zap, CheckCircle2, ArrowRight, Star } from 'lucide-react';
 
 // Fade-in animation hook using IntersectionObserver
 function useFadeIn() {
@@ -176,7 +176,7 @@ export default function LandingPage() {
             <FadeInSection delay={250}>
               <div className="bg-white rounded-3xl p-8 h-full border border-black/5 hover:border-black/10 transition-colors">
                 <div className="w-12 h-12 bg-black/5 rounded-xl flex items-center justify-center mb-6">
-                  <Image className="w-6 h-6" />
+                  <ImageIcon className="w-6 h-6" aria-hidden="true" />
                 </div>
                 <h3 className="text-2xl font-bold mb-3 tracking-tight">
                   10種のテンプレート

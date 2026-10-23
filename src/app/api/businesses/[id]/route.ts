@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { publicBusiness } from '@/lib/public-business';
 import {
   isSupabaseConfigured,
   getBusiness,
@@ -12,9 +13,9 @@ import {
 // GET /api/businesses/[id] - Get business details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const isAdmin = request.nextUrl.searchParams.get('admin') === 'true';
 
   if (!isSupabaseConfigured()) {
@@ -30,7 +31,7 @@ export async function GET(
     }
 
     const survey = getSurveyForBusiness(business.id);
-    return NextResponse.json({ business, survey });
+    return NextResponse.json({ business: isAdmin ? business : publicBusiness(business), survey });
   }
 
   let query;
@@ -62,15 +63,15 @@ export async function GET(
     .limit(1)
     .single();
 
-  return NextResponse.json({ business, survey });
+  return NextResponse.json({ business: isAdmin ? business : publicBusiness(business), survey });
 }
 
 // PUT /api/businesses/[id] - Update business (admin token required)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const token = params.id;
+  const { id: token } = await params;
   const body = await request.json();
 
   if (!isSupabaseConfigured()) {
