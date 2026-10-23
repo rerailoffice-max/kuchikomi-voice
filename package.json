@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "node scripts/apply-security-patches.mjs",
+    "security:patch": "node scripts/apply-security-patches.mjs",
+    "security:verify": "node scripts/apply-security-patches.mjs --check"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -36,6 +39,7 @@
   "overrides": {
     "next": {
       "postcss": "^8.5.23"
-    }
+    },
+    "postcss-selector-parser": "^7.1.6"
   }
 }
